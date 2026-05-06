@@ -98,7 +98,7 @@ REGRAS:
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
+        max_tokens: 4000,
         system: systemPrompt,
         messages: [{
           role: 'user',
@@ -122,8 +122,52 @@ REGRAS:
     }
 
     const data = await response.json();
-    const raw = data.content[0].text.trim().replace(/```json|```/g, '').trim();
-    const analysis = JSON.parse(raw);
+    let raw = data.content[0].text.trim();
+    
+    // Remove markdown fences
+    raw = raw.replace(/```json/g, '').replace(/```/g, '').trim();
+    
+    // Find first { and last } to extract JSON
+    const firstBrace = raw.indexOf('{');
+    const lastBrace = raw.lastIndexOf('}');
+    if (firstBrace >= 0 && lastBrace > firstBrace) {
+      raw = raw.substring(firstBrace, lastBrace + 1);
+    }
+
+    let analysis;
+    try {
+      analysis = JSON.parse(raw);
+    } catch(parseErr) {
+      // If JSON is broken, try to fix common issues and retry
+      // Remove any trailing commas before } or ]
+      raw = raw.replace(/,(\s*[}\]])/g, '$1');
+      // Fix unescaped quotes in strings (basic attempt)
+      try {
+        analysis = JSON.parse(raw);
+      } catch(e2) {
+        // Return a safe fallback analysis
+        console.error('JSON parse error:', parseErr.message);
+        console.error('Raw:', raw.substring(0, 500));
+        analysis = {
+          targetType: "Não foi possível identificar",
+          totalHoles: 0,
+          totalMiss: 0,
+          summary: "Não foi possível analisar esta imagem. Tente novamente com melhor iluminação e o alvo centralizado.",
+          targets: [{
+            id: "A1",
+            label: "Sessão completa",
+            holeCount: 0,
+            missCount: 0,
+            badge: "análise indisponível",
+            badgeLevel: "medium",
+            desvio: "não identificado",
+            analysis: "Erro ao processar a imagem. Por favor, tente novamente.",
+            holes: []
+          }],
+          generalPattern: "Não foi possível processar."
+        };
+      }
+    }
 
     return res.status(200).json({ analysis });
 
