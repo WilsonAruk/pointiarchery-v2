@@ -30,7 +30,7 @@ main{flex:1;padding:24px;max-width:480px;margin:0 auto;width:100%}
 .btn-analyze{flex:1;background:var(--accent);color:#0a0c0f;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:17px;padding:12px;border-radius:6px;border:none;cursor:pointer}
 .btn-retake{background:var(--surface2);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;padding:12px 16px;border-radius:6px;border:1px solid var(--border);cursor:pointer}
 .loading-wrap{display:none;padding:56px 0;text-align:center}
-.spinner{width:52px;height:52px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--accent);animation:spin .8s linear infinite;margin:0 auto 20px}
+
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:600}
 .loading-sub{font-size:12px;color:var(--muted);margin-top:6px}
@@ -116,7 +116,21 @@ footer{padding:14px 24px;text-align:center;border-top:1px solid var(--border);fo
   </div>
 
   <div class="loading-wrap" id="loadingWrap">
-    <div class="spinner"></div>
+    <div style="width:90px;height:90px;margin:0 auto 20px;animation:spin .9s linear infinite">
+      <svg viewBox="0 0 100 100" width="90" height="90">
+        <circle cx="50" cy="50" r="48" fill="#4A90C4"/>
+        <circle cx="50" cy="50" r="36" fill="#C04040"/>
+        <circle cx="50" cy="50" r="26" fill="#AA3333"/>
+        <circle cx="50" cy="50" r="17" fill="#DDBB00"/>
+        <circle cx="50" cy="50" r="10" fill="#CCAA00"/>
+        <circle cx="50" cy="50" r="4"  fill="#E8B84B"/>
+        <line x1="42" y1="50" x2="58" y2="50" stroke="#333" stroke-width="1"/>
+        <line x1="50" y1="42" x2="50" y2="58" stroke="#333" stroke-width="1"/>
+        <!-- flecha -->
+        <line x1="75" y1="25" x2="50" y2="50" stroke="#8B6914" stroke-width="3" stroke-linecap="round"/>
+        <polygon points="50,50 58,44 56,52" fill="#8B6914"/>
+      </svg>
+    </div>
     <div class="loading-text">Analisando o alvo...</div>
     <div class="loading-sub">Identificando furos e calculando dispersão</div>
   </div>
@@ -210,7 +224,7 @@ async function analyze() {
   show($('loadingWrap'));
   try {
     console.log('Enviando para /api/analyze, tamanho base64:', currentBase64.length);
-    const res = await fetch('/api/analyze', {
+    const res = await fetch('/api/analyze?t=' + Date.now(), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ imageBase64: currentBase64, imageMime: currentMime })
