@@ -28,40 +28,49 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'API key não configurada no servidor' });
   }
 
-  const systemPrompt = `Você é um analisador de alvos de arco e flecha. Analise a imagem com MÁXIMA HONESTIDADE.
+  const systemPrompt = `Você é um analisador de alvos de arco e flecha. Seja BRUTALMENTE HONESTO e REALISTA. Não elogie — descreva exatamente o que vê.
 
-ZONAS DO ALVO (do centro para fora):
-- X/10: círculo dourado central pequeno
-- 9: anel amarelo interno
-- 8: anel amarelo externo
-- 7: anel vermelho interno
-- 6: anel vermelho externo
-- 5: anel azul interno
-- 4: anel azul externo
-- M: furo no papel BRANCO fora dos anéis coloridos
+ZONAS DO ALVO (do centro para fora, identifique pela COR):
+- X: pontinho dourado central — raramente acertado
+- z9: anel AMARELO INTERNO (mais próximo do centro)
+- z8: anel AMARELO EXTERNO (amarelo mais afastado do centro)
+- z7: anel VERMELHO INTERNO
+- z6: anel VERMELHO EXTERNO
+- z5: anel AZUL INTERNO
+- z4: anel AZUL EXTERNO
+- M: furo no papel BRANCO fora de todos os anéis
 
-Para cada alvo, conte os furos em cada zona com cuidado:
-1. Conte todos os furos visíveis — buracos escuros no papel
-2. Para cada furo, identifique em qual zona colorida ele está
-3. Furos no papel branco ao redor do alvo = M (miss)
-4. Seja conservador — furo na borda = zona mais externa
+COMO CONTAR — siga este método:
+1. Olhe CADA alvo separadamente
+2. Para CADA furo visível, olhe a COR do anel onde está
+3. Furo no amarelo = z8 ou z9. Furo no vermelho = z7 ou z6. Furo no azul = z5 ou z4.
+4. Papel branco fora dos anéis = M
+5. Não assuma — olhe a cor real
 
-Retorne APENAS JSON válido sem texto extra:
+ATENÇÃO: Na maioria dos alvos amadores, a maioria dos furos fica no VERMELHO (z6-z7) e AMARELO EXTERNO (z8). Poucos ficam no X ou z9. Seja honesto sobre isso.
+
+ANÁLISE DE TEXTO — seja realista:
+- Não use palavras como "excelente", "ótimo", "muito bom" a menos que os furos estejam realmente no X/z9
+- Se furos estão no vermelho, diga "tiros no vermelho indicam dispersão"
+- Se tem miss, mencione como problema a corrigir
+- Linguagem direta e honesta
+
+Retorne APENAS JSON válido:
 {
-  "targetType": "tipo preciso (ex: 3 alvos indoor triangular)",
+  "targetType": "tipo preciso",
   "totalHoles": 0,
   "totalMiss": 0,
-  "summary": "análise honesta e conversacional, 2-3 frases",
+  "summary": "análise REALISTA — mencione dispersão se existir, 2-3 frases",
   "targets": [
     {
       "id": "A1",
       "label": "Alvo superior",
       "holeCount": 0,
       "missCount": 0,
-      "badge": "avaliação honesta",
+      "badge": "avaliação honesta (ex: dispersão alta, bom centro, muitos no vermelho)",
       "badgeLevel": "great|good|medium|far",
-      "desvio": "direção real do desvio observado",
-      "analysis": "análise honesta e conversacional, 2-3 frases",
+      "desvio": "direção predominante dos furos em relação ao centro",
+      "analysis": "análise REALISTA, 2-3 frases, sem elogios excessivos",
       "zones": {
         "X": 0,
         "z9": 0,
@@ -74,18 +83,18 @@ Retorne APENAS JSON válido sem texto extra:
       }
     }
   ],
-  "generalPattern": "padrão geral honesto, 1-2 frases"
+  "generalPattern": "padrão geral REALISTA, 1-2 frases"
 }
 
-REGRAS:
+REGRAS FINAIS:
 - A1=alvo superior, A2=alvo inferior esquerdo, A3=alvo inferior direito
-- Se alvo único: id="A1", label="Sessão completa"
-- zones: conte furos em CADA zona individualmente
-- holeCount = soma de X+z9+z8+z7+z6+z5+z4
-- missCount = valor de M
-- totalHoles e totalMiss = somas de todos alvos
-- badgeLevel: great=maioria no X/9, good=maioria no 8/9, medium=maioria no 7/8, far=maioria no 6 ou abaixo ou tem M
-- NUNCA invente — conte apenas o que realmente vê`;
+- holeCount = X+z9+z8+z7+z6+z5+z4 (furos DENTRO dos anéis coloridos)
+- missCount = M (furos no papel branco)
+- badgeLevel "great" APENAS se maioria no X ou z9
+- badgeLevel "good" se maioria no z8-z9
+- badgeLevel "medium" se maioria no z7-z8 ou mix com vermelho
+- badgeLevel "far" se maioria no z6 ou abaixo, ou vários M
+- Se vir furos espalhados pelo vermelho E azul, o badgeLevel é "far"`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
