@@ -156,14 +156,22 @@ let currentMime = 'image/jpeg';
 $('fileInput').addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;
-  currentMime = file.type || 'image/jpeg';
-  const reader = new FileReader();
-  reader.onload = ev => {
-    currentBase64 = ev.target.result.split(',')[1];
-    $('previewImg').src = ev.target.result;
+  const img = new Image();
+  const objectUrl = URL.createObjectURL(file);
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+    currentBase64 = dataUrl.split(',')[1];
+    currentMime = 'image/jpeg';
+    $('previewImg').src = dataUrl;
+    URL.revokeObjectURL(objectUrl);
     hide($('uploadZone')); hide($('errorWrap')); show($('previewWrap'));
   };
-  reader.readAsDataURL(file);
+  img.src = objectUrl;
 });
 
 $('btnRetake').addEventListener('click', reset);
