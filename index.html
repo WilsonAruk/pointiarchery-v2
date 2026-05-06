@@ -250,112 +250,66 @@ function badgeClass(l) {
 }
 
 function generateTargetSVG(target) {
-  var level = target.badgeLevel || 'medium';
-  var desvio = (target.desvio || '').toLowerCase();
-  var missCount = target.missCount || 0;
-  var holeCount = target.holeCount || 0;
-  var totalShots = holeCount + missCount;
+  var cx = 65, cy = 65;
+  // SVG scale: alvo radius = 62px, coordenadas da API: 100 unidades = 62px
+  var scale = 0.55;
 
-  // Determine centroid offset from desvio text
+  var desvio = (target.desvio || '').toLowerCase();
   var dx = 0, dy = 0;
   if (desvio.indexOf('esquerda') >= 0) dx = -8;
   if (desvio.indexOf('direita') >= 0) dx = 8;
-  if (desvio.indexOf('baixo') >= 0 || desvio.indexOf('abaixo') >= 0) dy = 8;
-  if (desvio.indexOf('cima') >= 0 || desvio.indexOf('acima') >= 0) dy = -8;
-  if (desvio.indexOf('leve') >= 0) { dx = Math.round(dx*0.6); dy = Math.round(dy*0.6); }
-
-  var cx = 65, cy = 65;
+  if (desvio.indexOf('baixo') >= 0) dy = 8;
+  if (desvio.indexOf('cima') >= 0) dy = -8;
+  if (desvio.indexOf('leve') >= 0) { dx = Math.round(dx*0.5); dy = Math.round(dy*0.5); }
   var gx = cx + dx, gy = cy + dy;
 
-  // Zone radii in the 130x130 SVG: X=5, 9=13, 8=22, red=34, blue=47, white=62
-  // Distribute holes based on badgeLevel
-  var zoneDistrib;
-  if (level === 'great') {
-    zoneDistrib = {x:0.5, y9:0.35, y8:0.1, red:0.05, blue:0, miss:0};
-  } else if (level === 'good') {
-    zoneDistrib = {x:0.1, y9:0.5, y8:0.25, red:0.1, blue:0.05, miss:0};
-  } else if (level === 'medium') {
-    zoneDistrib = {x:0, y9:0.2, y8:0.35, red:0.3, blue:0.1, miss:0.05};
-  } else {
-    zoneDistrib = {x:0, y9:0.05, y8:0.15, red:0.35, blue:0.3, miss:0.15};
-  }
+  var holesHTML = '';
+  var holes = target.holes || [];
 
-  // Override miss ratio based on actual missCount
-  if (totalShots > 0 && missCount > 0) {
-    var missRatio = missCount / totalShots;
-    zoneDistrib.miss = missRatio;
-    // Rescale others
-    var remaining = 1 - missRatio;
-    var oldTotal = zoneDistrib.x + zoneDistrib.y9 + zoneDistrib.y8 + zoneDistrib.red + zoneDistrib.blue;
-    if (oldTotal > 0) {
-      var scale = remaining / oldTotal;
-      zoneDistrib.x *= scale; zoneDistrib.y9 *= scale; zoneDistrib.y8 *= scale;
-      zoneDistrib.red *= scale; zoneDistrib.blue *= scale;
-    }
-  }
-
-  // Generate hole positions
-  function randCircle(r, offsetX, offsetY) {
-    var angle = Math.random() * 2 * Math.PI;
-    var dist = Math.random() * r;
-    return [Math.round((offsetX || cx) + Math.cos(angle)*dist), Math.round((offsetY || cy) + Math.sin(angle)*dist)];
-  }
-
-  var holes = [];
-  var n = Math.max(totalShots, 3);
-
-  // Use seeded-ish positions based on index for consistency
-  var positions = [
-    [2,-3],[5,1],[-3,4],[4,-5],[-5,2],[1,5],[-4,-3],[6,3],[-2,6],[3,-6],
-    [7,-2],[-6,4],[2,7],[-3,-7],[8,1],[-7,-1],[4,8],[-5,-6],[9,-3],[0,9]
-  ];
-
-  var zoneOrder = ['x','y9','y8','red','blue'];
-  var zoneRadii = {x:4, y9:9, y8:15, red:25, blue:38};
-  var idx = 0;
-
-  zoneOrder.forEach(function(zone) {
-    var count = Math.round(n * zoneDistrib[zone]);
-    for (var i = 0; i < count && idx < n - missCount; i++, idx++) {
-      var r = zoneRadii[zone];
-      var pos = positions[idx % positions.length];
-      var angle = (idx * 137.5) * Math.PI / 180; // golden angle spread
-      var dist = (r * 0.3) + Math.random() * (r * 0.65);
-      var hx = Math.round(gx + Math.cos(angle) * dist);
-      var hy = Math.round(gy + Math.sin(angle) * dist);
-      holes.push({x: hx, y: hy, type: zone});
-    }
-  });
-
-  // Add miss holes outside target (in white area, radius 55-62)
-  for (var m = 0; m < missCount; m++) {
-    var angle = (m * 73 + 30) * Math.PI / 180;
-    var dist = 52 + Math.random() * 8;
-    holes.push({
-      x: Math.round(cx + Math.cos(angle) * dist),
-      y: Math.round(cy + Math.sin(angle) * dist),
-      type: 'miss'
+  if (holes.length > 0) {
+    // Use real coordinates from API
+    holes.forEach(function(h) {
+      var hx = Math.round(cx + (h.x || 0) * scale);
+      var hy = Math.round(cy + (h.y || 0) * scale);
+      var isMiss = h.zone === 'M' || Math.abs(h.x||0) > 100 || Math.abs(h.y||0) > 100;
+      // Clamp miss holes to just outside the target ring
+      if (isMiss) {
+        var angle = Math.atan2(h.y||1, h.x||1);
+        hx = Math.round(cx + Math.cos(angle) * 57);
+        hy = Math.round(cy + Math.sin(angle) * 57);
+        holesHTML += '<circle cx="'+hx+'" cy="'+hy+'" r="3.5" fill="#f87171" opacity="0.9"/>';
+      } else {
+        holesHTML += '<circle cx="'+hx+'" cy="'+hy+'" r="3.2" fill="#111" opacity="0.9"/>';
+      }
     });
+  } else {
+    // Fallback: distribute by badgeLevel if no coordinates
+    var level = target.badgeLevel || 'medium';
+    var total = (target.holeCount || 0) + (target.missCount || 0);
+    total = Math.max(total, 3);
+    var radiiByLevel = {great:[3,8,14], good:[8,15,22], medium:[20,28,38], far:[35,45,55]};
+    var radii = radiiByLevel[level] || radiiByLevel.medium;
+    for (var i = 0; i < total - (target.missCount||0); i++) {
+      var angle = i * 137.5 * Math.PI / 180;
+      var r = radii[i % radii.length] * (0.7 + Math.random()*0.6);
+      var hx2 = Math.round(gx + Math.cos(angle)*r);
+      var hy2 = Math.round(gy + Math.sin(angle)*r);
+      holesHTML += '<circle cx="'+hx2+'" cy="'+hy2+'" r="3.2" fill="#111" opacity="0.88"/>';
+    }
+    for (var m = 0; m < (target.missCount||0); m++) {
+      var a2 = m * 73 * Math.PI / 180;
+      var mx = Math.round(cx + Math.cos(a2)*57);
+      var my = Math.round(cy + Math.sin(a2)*57);
+      holesHTML += '<circle cx="'+mx+'" cy="'+my+'" r="3.5" fill="#f87171" opacity="0.9"/>';
+    }
   }
 
-  var holesHTML = holes.map(function(h) {
-    var color, r;
-    if (h.type === 'miss') { color = '#f87171'; r = 3.5; }
-    else if (h.type === 'x') { color = '#111'; r = 3; }
-    else if (h.type === 'y9') { color = '#111'; r = 3.2; }
-    else if (h.type === 'y8') { color = '#111'; r = 3.5; }
-    else if (h.type === 'red') { color = '#111'; r = 3.5; }
-    else { color = '#111'; r = 3.5; }
-    return '<circle cx="'+h.x+'" cy="'+h.y+'" r="'+r+'" fill="'+color+'" opacity="0.9"/>';
-  }).join('');
-
-  var spread = level === 'great' ? 10 : level === 'good' ? 15 : level === 'medium' ? 22 : 30;
+  var spread = target.badgeLevel === 'great' ? 10 : target.badgeLevel === 'good' ? 15 : target.badgeLevel === 'medium' ? 22 : 30;
   var arrow = (dx !== 0 || dy !== 0)
     ? '<line x1="'+cx+'" y1="'+cy+'" x2="'+gx+'" y2="'+gy+'" stroke="#E8B84B" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.8"/>'
     : '';
-
-  var missLabel = missCount > 0
-    ? '<text x="65" y="125" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="9" fill="#f87171" font-weight="600">' + missCount + ' M</text>'
+  var missLabel = (target.missCount > 0)
+    ? '<text x="65" y="127" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="8" fill="#f87171" font-weight="700">'+target.missCount+' M</text>'
     : '';
 
   return '<svg width="80" height="80" viewBox="0 0 130 130" style="flex-shrink:0">'
@@ -370,10 +324,9 @@ function generateTargetSVG(target) {
     + '<line x1="65" y1="58" x2="65" y2="72" stroke="#333" stroke-width="0.6"/>'
     + holesHTML
     + '<ellipse cx="'+gx+'" cy="'+gy+'" rx="'+spread+'" ry="'+Math.round(spread*0.82)+'" fill="none" stroke="#111" stroke-width="1.8" stroke-dasharray="4,3"/>'
-    + '<circle cx="'+gx+'" cy="'+gy+'" r="3.5" fill="none" stroke="#111" stroke-width="1.4"/>'
+    + '<circle cx="'+gx+'" cy="'+gy+'" r="3" fill="none" stroke="#111" stroke-width="1.4"/>'
     + '<circle cx="'+gx+'" cy="'+gy+'" r="1.2" fill="#111"/>'
-    + arrow
-    + missLabel
+    + arrow + missLabel
     + '</svg>';
 }
 
@@ -381,56 +334,80 @@ function generateTargetSVG(target) {
 function generateUnifiedSVG(targets) {
   var colors = ['#1a4a8a','#1a5c2e','#5a1a8a','#8a4a1a'];
   var allHoles = '';
-  var cxSum = 0, cySum = 0;
+  var cxSum = 0, cySum = 0, count = 0;
+  var scale = 0.46; // unified SVG: center=100, radius=96
+  var ucx = 100, ucy = 100;
+
   targets.forEach(function(t, i) {
-    var level = t.badgeLevel || 'medium';
-    var desvio = (t.desvio || '').toLowerCase();
+    var col = colors[i % colors.length];
+    var holes = t.holes || [];
+    var desvio = (t.desvio||'').toLowerCase();
     var dx = 0, dy = 0;
     if (desvio.indexOf('esquerda') >= 0) dx = -12;
     if (desvio.indexOf('direita') >= 0) dx = 12;
-    if (desvio.indexOf('baixo') >= 0 || desvio.indexOf('abaixo') >= 0) dy = 12;
-    if (desvio.indexOf('cima') >= 0 || desvio.indexOf('acima') >= 0) dy = -12;
-    if (desvio.indexOf('leve') >= 0) { dx = Math.round(dx*0.5); dy = Math.round(dy*0.5); }
-    var gx = 100 + dx, gy = 100 + dy;
-    cxSum += gx; cySum += gy;
-    var holes = level === 'great'
-      ? [[0,0],[5,-4],[-4,5],[6,5],[-5,-5],[3,7],[-6,2],[4,-7]]
-      : level === 'good'
-      ? [[0,0],[7,-5],[-6,6],[8,6],[-7,-6],[4,9],[-8,3],[5,-9]]
-      : [[0,0],[10,-7],[-8,8],[11,8],[-10,-8],[5,12],[-11,4],[6,-12]];
-    var col = colors[i % colors.length];
-    holes.forEach(function(h) {
-      allHoles += '<circle cx="'+(gx+h[0])+'" cy="'+(gy+h[1])+'" r="4.5" fill="'+col+'" opacity="0.82"/>';
-    });
+    if (desvio.indexOf('baixo') >= 0) dy = 12;
+    if (desvio.indexOf('cima') >= 0) dy = -12;
+    if (desvio.indexOf('leve') >= 0) { dx=Math.round(dx*0.5); dy=Math.round(dy*0.5); }
+    cxSum += 100+dx; cySum += 100+dy; count++;
+
+    if (holes.length > 0) {
+      holes.forEach(function(h) {
+        var isMiss = h.zone === 'M' || Math.abs(h.x||0) > 100 || Math.abs(h.y||0) > 100;
+        var hx, hy;
+        if (isMiss) {
+          var angle = Math.atan2(h.y||1, h.x||1);
+          hx = Math.round(100 + Math.cos(angle)*88);
+          hy = Math.round(100 + Math.sin(angle)*88);
+          allHoles += '<circle cx="'+hx+'" cy="'+hy+'" r="4" fill="#f87171" opacity="0.8"/>';
+        } else {
+          hx = Math.round(100 + (h.x||0)*scale);
+          hy = Math.round(100 + (h.y||0)*scale);
+          allHoles += '<circle cx="'+hx+'" cy="'+hy+'" r="4" fill="'+col+'" opacity="0.82"/>';
+        }
+      });
+    } else {
+      // Fallback
+      var level = t.badgeLevel||'medium';
+      var gx2 = 100+dx, gy2 = 100+dy;
+      var spread2 = level==='great'?8:level==='good'?14:level==='medium'?22:30;
+      var n2 = Math.max((t.holeCount||0),3);
+      for (var j=0;j<n2;j++) {
+        var a=j*137.5*Math.PI/180;
+        var r=spread2*(0.3+Math.random()*0.7);
+        allHoles += '<circle cx="'+Math.round(gx2+Math.cos(a)*r)+'" cy="'+Math.round(gy2+Math.sin(a)*r)+'" r="4" fill="'+col+'" opacity="0.82"/>';
+      }
+    }
   });
-  var ucx = Math.round(cxSum / targets.length);
-  var ucy = Math.round(cySum / targets.length);
-  var legend = targets.map(function(t, i) {
+
+  ucx = count > 0 ? Math.round(cxSum/count) : 100;
+  ucy = count > 0 ? Math.round(cySum/count) : 100;
+
+  var legend = targets.map(function(t,i){
     return '<span style="font-size:10px;color:#6b7280;display:flex;align-items:center;gap:4px">'
-      + '<span style="width:8px;height:8px;border-radius:50%;background:'+colors[i]+';display:inline-block"></span>'
-      + t.id + '</span>';
+      +'<span style="width:8px;height:8px;border-radius:50%;background:'+colors[i]+';display:inline-block"></span>'+t.id+'</span>';
   }).join('');
+
   return '<div style="display:flex;justify-content:center;margin:8px 0">'
-    + '<svg width="160" height="160" viewBox="0 0 200 200">'
-    + '<circle cx="100" cy="100" r="96" fill="#4A90C4"/>'
-    + '<circle cx="100" cy="100" r="72" fill="#C04040"/>'
-    + '<circle cx="100" cy="100" r="52" fill="#AA3333"/>'
-    + '<circle cx="100" cy="100" r="34" fill="#DDBB00"/>'
-    + '<circle cx="100" cy="100" r="20" fill="#CCAA00"/>'
-    + '<circle cx="100" cy="100" r="8" fill="#BBAA00"/>'
-    + '<line x1="86" y1="100" x2="114" y2="100" stroke="#333" stroke-width="0.8"/>'
-    + '<line x1="100" y1="86" x2="100" y2="114" stroke="#333" stroke-width="0.8"/>'
-    + allHoles
-    + '<ellipse cx="'+ucx+'" cy="'+ucy+'" rx="46" ry="36" fill="#000" fill-opacity="0.07" stroke="#111" stroke-width="2.2" stroke-dasharray="6,4"/>'
-    + '<circle cx="'+ucx+'" cy="'+ucy+'" r="8" fill="none" stroke="#111" stroke-width="1.5"/>'
-    + '<circle cx="'+ucx+'" cy="'+ucy+'" r="2.5" fill="#111"/>'
-    + '</svg></div>'
-    + '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:4px">'
-    + legend
-    + '<span style="font-size:10px;color:#6b7280;display:flex;align-items:center;gap:4px">'
-    + '<span style="width:14px;height:0;border-top:2px dashed #111;display:inline-block"></span>zona de dispersão</span>'
-    + '</div>';
+    +'<svg width="160" height="160" viewBox="0 0 200 200">'
+    +'<circle cx="100" cy="100" r="96" fill="#4A90C4"/>'
+    +'<circle cx="100" cy="100" r="72" fill="#C04040"/>'
+    +'<circle cx="100" cy="100" r="52" fill="#AA3333"/>'
+    +'<circle cx="100" cy="100" r="34" fill="#DDBB00"/>'
+    +'<circle cx="100" cy="100" r="20" fill="#CCAA00"/>'
+    +'<circle cx="100" cy="100" r="8"  fill="#BBAA00"/>'
+    +'<line x1="86" y1="100" x2="114" y2="100" stroke="#333" stroke-width="0.8"/>'
+    +'<line x1="100" y1="86" x2="100" y2="114" stroke="#333" stroke-width="0.8"/>'
+    +allHoles
+    +'<ellipse cx="'+ucx+'" cy="'+ucy+'" rx="46" ry="36" fill="#000" fill-opacity="0.07" stroke="#111" stroke-width="2.2" stroke-dasharray="6,4"/>'
+    +'<circle cx="'+ucx+'" cy="'+ucy+'" r="8" fill="none" stroke="#111" stroke-width="1.5"/>'
+    +'<circle cx="'+ucx+'" cy="'+ucy+'" r="2.5" fill="#111"/>'
+    +'</svg></div>'
+    +'<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:4px">'+legend
+    +'<span style="font-size:10px;color:#6b7280;display:flex;align-items:center;gap:4px">'
+    +'<span style="width:14px;height:0;border-top:2px dashed #111;display:inline-block"></span>zona de dispersão</span>'
+    +'</div>';
 }
+
 
 function renderResults(a) {
   hide($('loadingWrap'));
