@@ -358,16 +358,26 @@ function renderResults(a) {
     + '</div>';
 
   if (a.targets && a.targets.length > 0) {
+    var totalHoles = a.totalHoles || a.targets.reduce(function(s,t){ return s + (t.holeCount||0); }, 0);
+    var totalBlock = '';
+    if (totalHoles > 0) {
+      totalBlock = '<div style="text-align:center;margin-top:12px;padding-top:10px;border-top:0.5px solid #2a2f3a">'
+        + '<span style="font-family:Barlow Condensed,sans-serif;font-size:32px;font-weight:700;color:#E8B84B">' + totalHoles + '</span>'
+        + '<span style="font-size:11px;color:#6b7280;display:block;margin-top:2px;letter-spacing:1px;text-transform:uppercase">tiros contados na imagem</span>'
+        + '</div>';
+    }
     html += '<div class="section-card fade-in">'
       + '<div class="section-label">Agrupamento geral · sobreposição das séries</div>'
       + generateUnifiedSVG(a.targets)
+      + totalBlock
       + '</div>';
 
     html += '<div class="targets-label">Dispersão por série</div>';
     a.targets.forEach(function(t, i) {
+      var hcLabel = t.holeCount > 0 ? ' <span style="font-size:11px;color:#6b7280;font-weight:400">(' + t.holeCount + ' tiros)</span>' : '';
       html += '<div class="target-card fade-in" style="animation-delay:'+(i*0.08)+'s">'
         + '<div class="target-card-header">'
-        + '<div class="target-card-name">' + t.label + ' · ' + t.id + '</div>'
+        + '<div class="target-card-name">' + t.label + ' · ' + t.id + hcLabel + '</div>'
         + '<div class="badge ' + badgeClass(t.badgeLevel) + '">' + t.badge + '</div>'
         + '</div>'
         + '<div class="target-card-body">'
