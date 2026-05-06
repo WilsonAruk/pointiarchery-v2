@@ -28,65 +28,69 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'API key não configurada no servidor' });
   }
 
-  const systemPrompt = `Você é um analisador PRECISO e REALISTA de alvos de arco e flecha.
+  const systemPrompt = `Você é um analisador de alvos de arco e flecha. Analise a imagem com MÁXIMA PRECISÃO e HONESTIDADE.
 
-ZONAS DO ALVO (do centro para fora):
-- X/10: círculo dourado central
-- 9: anel amarelo interno
-- 8: anel amarelo externo  
-- 7: anel vermelho interno
-- 6: anel vermelho externo
-- 5: anel azul interno
-- 4: anel azul externo
-- M: furo fora do alvo, no papel branco
+SISTEMA DE COORDENADAS:
+- Centro do alvo = (0,0)
+- X/10 dourado: distância 0-8 do centro
+- Zona 9 amarelo interno: distância 8-20
+- Zona 8 amarelo externo: distância 20-35
+- Zona 7 vermelho interno: distância 35-50
+- Zona 6 vermelho externo: distância 50-65
+- Zona 5 azul interno: distância 65-80
+- Zona 4 azul externo: distância 80-95
+- M (miss) fora do alvo: distância 100-130
 
-Para cada furo, estime a posição em coordenadas (x,y) usando este sistema:
-- Centro do alvo = (0, 0)
-- Escala: raio do alvo completo = 100 unidades
-- X positivo = direita, X negativo = esquerda
-- Y positivo = baixo, Y negativo = cima
-- Furo no X: distância ~0-5 do centro
-- Furo no 9: distância ~5-20
-- Furo no 8: distância ~20-35
-- Furo no 7: distância ~35-50
-- Furo no 6: distância ~50-65
-- Furo no 5: distância ~65-80
-- Furo no 4: distância ~80-100
-- Furo M (miss): distância >100
+REGRA FUNDAMENTAL: As coordenadas x,y de cada furo DEVEM refletir a posição REAL e EXATA que você vê na imagem. Se um furo está no vermelho, suas coordenadas devem ter distância entre 35-65. Se está no azul, entre 65-95. Se está fora do alvo (papel branco), distância acima de 100.
+
+Para estimar x e y:
+- Observe a direção do furo em relação ao centro (ângulo)
+- Observe a distância do furo ao centro (zona)
+- x = distancia * cos(angulo_visual), y = distancia * sin(angulo_visual)
+- Furo à direita = x positivo, à esquerda = x negativo
+- Furo abaixo = y positivo, acima = y negativo
+
+EXEMPLO REAL:
+- Furo no vermelho à esquerda do centro: x=-45, y=5, zone="7"
+- Furo no amarelo externo acima: x=5, y=-28, zone="8"  
+- Furo fora do alvo à direita: x=115, y=10, zone="M"
 
 Retorne APENAS JSON válido sem texto extra:
 {
-  "targetType": "tipo preciso do alvo",
+  "targetType": "tipo preciso",
   "totalHoles": 0,
   "totalMiss": 0,
-  "summary": "análise honesta e conversacional, 2-3 frases",
+  "summary": "descrição honesta e conversacional, 2-3 frases",
   "targets": [
     {
       "id": "A1",
       "label": "Alvo superior",
       "holeCount": 0,
       "missCount": 0,
-      "badge": "avaliação honesta",
+      "badge": "avaliação honesta baseada nas zonas reais",
       "badgeLevel": "great|good|medium|far",
       "desvio": "direção real do desvio",
       "analysis": "análise honesta, 2-3 frases",
       "holes": [
-        {"x": 0, "y": 0, "zone": "X|9|8|7|6|5|4|M"}
+        {"x": 5, "y": -3, "zone": "X"},
+        {"x": -45, "y": 10, "zone": "7"},
+        {"x": 110, "y": 20, "zone": "M"}
       ]
     }
   ],
-  "generalPattern": "padrão geral honesto, 1-2 frases"
+  "generalPattern": "padrão geral honesto"
 }
 
-REGRAS:
-- Se for 3 alvos: A1=superior, A2=inferior esquerdo, A3=inferior direito
-- Se for alvo único: 1 item com id "A1" e label "Sessão completa"
-- holes: liste TODOS os furos visíveis com posição estimada real
-- holeCount: furos dentro do alvo, missCount: furos no papel branco
-- totalHoles e totalMiss: somas de todos os alvos
-- Seja REALISTA e CONSERVADOR — não superestime a precisão
-- Furos no papel branco = M, coordenadas com distância > 100
-- NUNCA elogie demais, descreva o que realmente está visível`;
+REGRAS OBRIGATÓRIAS:
+- A1=alvo superior, A2=alvo inferior esquerdo, A3=alvo inferior direito
+- Se alvo único: id="A1", label="Sessão completa"
+- Liste TODOS os furos visíveis com coordenadas REAIS
+- holeCount = furos dentro dos anéis coloridos
+- missCount = furos no papel branco fora dos anéis
+- NÃO coloque furos no amarelo se eles estão no vermelho ou azul
+- NÃO seja otimista — mostre a realidade exata da imagem
+- Se houver furos no azul, suas coordenadas devem ser entre 65-95
+- Se houver furos no vermelho, suas coordenadas devem ser entre 35-65`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
