@@ -190,6 +190,8 @@ $('btnAnalyze').addEventListener('click', analyze);
 function reset() {
   $('fileInput').value = '';
   currentBase64 = null;
+  currentMime = 'image/jpeg';
+  $('resultsContent').innerHTML = '';
   ['previewWrap','loadingWrap','errorWrap','resultsWrap'].forEach(function(id){ hide($(id)); });
   show($('uploadZone'));
 }
@@ -362,7 +364,13 @@ function renderResults(a) {
     + '<div class="coach-text">Esses dados e o alvo físico contam muito mais do que parece. Um técnico experiente consegue enxergar padrões que vão além da pontuação — postura, empunhadura, âncora — e vai te dar ajustes precisos que fazem diferença real no próximo treino.</div>'
     + '</div>';
 
-  html += '<div class="fade-in" style="animation-delay:.44s;margin-top:4px">'
+  html += '<div class="fade-in" style="animation-delay:.40s;background:rgba(232,184,75,0.06);border:1px solid rgba(232,184,75,0.2);border-radius:10px;padding:12px 14px;margin-bottom:12px">'
+    + '<div style="font-size:11px;color:rgba(232,184,75,0.8);line-height:1.7">'
+    + '<strong style="color:rgba(232,184,75,1);display:block;margin-bottom:3px">⚠ Funcionalidade em desenvolvimento</strong>'
+    + 'Esta análise é gerada por inteligência artificial e pode conter imprecisões. Os resultados são uma referência visual e não substituem a avaliação de um técnico experiente. Sempre valide as informações com seu treinador.'
+    + '</div></div>';
+
+  html += '<div class="fade-in" style="animation-delay:.48s;margin-top:4px">'
     + '<button class="btn-new-bottom" onclick="reset()">+ Analisar novo alvo</button>'
     + '</div>';
 
