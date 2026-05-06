@@ -39,11 +39,13 @@ Analise cuidadosamente:
 Retorne APENAS um JSON válido, sem texto adicional, markdown ou backticks:
 {
   "targetType": "descrição precisa do tipo (ex: 3 alvos indoor triangular, alvo único Las Vegas)",
+  "totalHoles": 0,
   "summary": "descrição fiel do que está na imagem, 2-3 frases conversacionais baseadas nos furos reais visíveis",
   "targets": [
     {
       "id": "A1",
       "label": "posição do alvo (ex: Alvo superior, Alvo inferior esquerdo)",
+      "holeCount": 0,
       "badge": "avaliação baseada nos furos reais (ex: muito próximo do X, furos no vermelho)",
       "badgeLevel": "great|good|medium|far",
       "desvio": "direção real do desvio observado na imagem (ex: desvio para esquerda e baixo)",
@@ -59,7 +61,10 @@ Regras OBRIGATÓRIAS:
 - Se não conseguir ver os furos claramente, diga isso no summary
 - NÃO gere análises genéricas — seja específico sobre o que vê
 - Se for 3 alvos: A1=superior, A2=inferior esquerdo, A3=inferior direito
-- Se for alvo único: 1 item com id "A1" e label "Sessão completa"`;
+- Se for alvo único: 1 item com id "A1" e label "Sessão completa"
+- holeCount: conte os furos visíveis em cada alvo individualmente (buracos escuros no papel)
+- totalHoles: soma de todos os furos contados em todos os alvos
+- Conte com cuidado — furos são buracos circulares escuros ou rasgos no papel do alvo`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
