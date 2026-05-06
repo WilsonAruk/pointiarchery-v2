@@ -153,8 +153,9 @@ $('fileInput').addEventListener('change', function(e) {
   img.onload = function() {
     try {
       const canvas = document.createElement('canvas');
-      const MAX = 1600;
+      const MAX = 800;
       let w = img.width, h = img.height;
+      console.log('Imagem original:', w, 'x', h);
       if (w > MAX || h > MAX) {
         if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
         else { w = Math.round(w * MAX / h); h = MAX; }
@@ -163,9 +164,10 @@ $('fileInput').addEventListener('change', function(e) {
       canvas.height = h;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.90);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
       currentBase64 = dataUrl.split(',')[1];
       currentMime = 'image/jpeg';
+      console.log('Imagem redimensionada:', w, 'x', h, '| base64 length:', currentBase64.length);
       $('previewImg').src = dataUrl;
       URL.revokeObjectURL(objectUrl);
       hide($('uploadZone'));
@@ -185,7 +187,12 @@ $('fileInput').addEventListener('change', function(e) {
 $('btnRetake').addEventListener('click', reset);
 $('btnNew').addEventListener('click', reset);
 $('btnRetry').addEventListener('click', function() { hide($('errorWrap')); show($('previewWrap')); });
-$('btnAnalyze').addEventListener('click', analyze);
+$('btnAnalyze').addEventListener('click', function() {
+  $('btnAnalyze').disabled = true;
+  analyze().finally(function() {
+    $('btnAnalyze').disabled = false;
+  });
+});
 
 function reset() {
   $('fileInput').value = '';
@@ -197,23 +204,29 @@ function reset() {
 }
 
 async function analyze() {
-  if (!currentBase64) return;
+  if (!currentBase64) { return; }
   hide($('previewWrap'));
   hide($('errorWrap'));
   show($('loadingWrap'));
   try {
+    console.log('Enviando para /api/analyze, tamanho base64:', currentBase64.length);
     const res = await fetch('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ imageBase64: currentBase64, imageMime: currentMime })
     });
+    console.log('Resposta status:', res.status);
+    const text = await res.text();
+    console.log('Resposta texto:', text.substring(0, 300));
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Erro no servidor');
+      let errMsg = 'Erro no servidor (' + res.status + ')';
+      try { errMsg = JSON.parse(text).error || errMsg; } catch(e) {}
+      throw new Error(errMsg);
     }
-    const data = await res.json();
+    const data = JSON.parse(text);
     renderResults(data.analysis);
   } catch(err) {
+    console.error('Erro analyze:', err);
     hide($('loadingWrap'));
     $('errorText').textContent = err.message || 'Não foi possível analisar. Tente novamente.';
     show($('errorWrap'));
