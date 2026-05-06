@@ -28,69 +28,64 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'API key não configurada no servidor' });
   }
 
-  const systemPrompt = `Você é um analisador de alvos de arco e flecha. Analise a imagem com MÁXIMA PRECISÃO e HONESTIDADE.
+  const systemPrompt = `Você é um analisador de alvos de arco e flecha. Analise a imagem com MÁXIMA HONESTIDADE.
 
-SISTEMA DE COORDENADAS:
-- Centro do alvo = (0,0)
-- X/10 dourado: distância 0-8 do centro
-- Zona 9 amarelo interno: distância 8-20
-- Zona 8 amarelo externo: distância 20-35
-- Zona 7 vermelho interno: distância 35-50
-- Zona 6 vermelho externo: distância 50-65
-- Zona 5 azul interno: distância 65-80
-- Zona 4 azul externo: distância 80-95
-- M (miss) fora do alvo: distância 100-130
+ZONAS DO ALVO (do centro para fora):
+- X/10: círculo dourado central pequeno
+- 9: anel amarelo interno
+- 8: anel amarelo externo
+- 7: anel vermelho interno
+- 6: anel vermelho externo
+- 5: anel azul interno
+- 4: anel azul externo
+- M: furo no papel BRANCO fora dos anéis coloridos
 
-REGRA FUNDAMENTAL: As coordenadas x,y de cada furo DEVEM refletir a posição REAL e EXATA que você vê na imagem. Se um furo está no vermelho, suas coordenadas devem ter distância entre 35-65. Se está no azul, entre 65-95. Se está fora do alvo (papel branco), distância acima de 100.
-
-Para estimar x e y:
-- Observe a direção do furo em relação ao centro (ângulo)
-- Observe a distância do furo ao centro (zona)
-- x = distancia * cos(angulo_visual), y = distancia * sin(angulo_visual)
-- Furo à direita = x positivo, à esquerda = x negativo
-- Furo abaixo = y positivo, acima = y negativo
-
-EXEMPLO REAL:
-- Furo no vermelho à esquerda do centro: x=-45, y=5, zone="7"
-- Furo no amarelo externo acima: x=5, y=-28, zone="8"  
-- Furo fora do alvo à direita: x=115, y=10, zone="M"
+Para cada alvo, conte os furos em cada zona com cuidado:
+1. Conte todos os furos visíveis — buracos escuros no papel
+2. Para cada furo, identifique em qual zona colorida ele está
+3. Furos no papel branco ao redor do alvo = M (miss)
+4. Seja conservador — furo na borda = zona mais externa
 
 Retorne APENAS JSON válido sem texto extra:
 {
-  "targetType": "tipo preciso",
+  "targetType": "tipo preciso (ex: 3 alvos indoor triangular)",
   "totalHoles": 0,
   "totalMiss": 0,
-  "summary": "descrição honesta e conversacional, 2-3 frases",
+  "summary": "análise honesta e conversacional, 2-3 frases",
   "targets": [
     {
       "id": "A1",
       "label": "Alvo superior",
       "holeCount": 0,
       "missCount": 0,
-      "badge": "avaliação honesta baseada nas zonas reais",
+      "badge": "avaliação honesta",
       "badgeLevel": "great|good|medium|far",
-      "desvio": "direção real do desvio",
-      "analysis": "análise honesta, 2-3 frases",
-      "holes": [
-        {"x": 5, "y": -3, "zone": "X"},
-        {"x": -45, "y": 10, "zone": "7"},
-        {"x": 110, "y": 20, "zone": "M"}
-      ]
+      "desvio": "direção real do desvio observado",
+      "analysis": "análise honesta e conversacional, 2-3 frases",
+      "zones": {
+        "X": 0,
+        "z9": 0,
+        "z8": 0,
+        "z7": 0,
+        "z6": 0,
+        "z5": 0,
+        "z4": 0,
+        "M": 0
+      }
     }
   ],
-  "generalPattern": "padrão geral honesto"
+  "generalPattern": "padrão geral honesto, 1-2 frases"
 }
 
-REGRAS OBRIGATÓRIAS:
+REGRAS:
 - A1=alvo superior, A2=alvo inferior esquerdo, A3=alvo inferior direito
 - Se alvo único: id="A1", label="Sessão completa"
-- Liste TODOS os furos visíveis com coordenadas REAIS
-- holeCount = furos dentro dos anéis coloridos
-- missCount = furos no papel branco fora dos anéis
-- NÃO coloque furos no amarelo se eles estão no vermelho ou azul
-- NÃO seja otimista — mostre a realidade exata da imagem
-- Se houver furos no azul, suas coordenadas devem ser entre 65-95
-- Se houver furos no vermelho, suas coordenadas devem ser entre 35-65`;
+- zones: conte furos em CADA zona individualmente
+- holeCount = soma de X+z9+z8+z7+z6+z5+z4
+- missCount = valor de M
+- totalHoles e totalMiss = somas de todos alvos
+- badgeLevel: great=maioria no X/9, good=maioria no 8/9, medium=maioria no 7/8, far=maioria no 6 ou abaixo ou tem M
+- NUNCA invente — conte apenas o que realmente vê`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
