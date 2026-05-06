@@ -354,6 +354,11 @@ function renderResults(a) {
   html += `<div class="coach-card fade-in" style="animation-delay:.36s">
     <div class="coach-title">Leve para o seu técnico</div>
     <div class="coach-text">Esses dados e o alvo físico contam muito mais do que parece. Um técnico experiente consegue enxergar padrões que vão além da pontuação — postura, empunhadura, âncora — e vai te dar ajustes precisos que fazem diferença real no próximo treino.</div>
+  </div>
+  <div class="fade-in" style="animation-delay:.44s;margin-top:16px;text-align:center">
+    <button onclick="reset()" style="width:100%;background:var(--accent);color:#0a0c0f;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.5px;padding:14px;border-radius:8px;border:none;cursor:pointer;transition:opacity .15s">
+      + Analisar novo alvo
+    </button>
   </div>`;
 
   $('resultsContent').innerHTML = html;
