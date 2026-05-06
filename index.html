@@ -8,24 +8,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0a0c0f;--surface:#13161b;--surface2:#1c2028;--border:#2a2f3a;
-  --accent:#E8B84B;--accent2:#4A90C4;--text:#f0f2f5;--muted:#6b7280;
-  --green:#4ade80;--red:#f87171;--orange:#fb923c;
-}
+:root{--bg:#0a0c0f;--surface:#13161b;--surface2:#1c2028;--border:#2a2f3a;--accent:#E8B84B;--accent2:#4A90C4;--text:#f0f2f5;--muted:#6b7280;--green:#4ade80;--red:#f87171;--orange:#fb923c}
 body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;display:flex;flex-direction:column}
 header{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;background:var(--surface);position:sticky;top:0;z-index:10}
 .logo-img{height:44px;width:auto;object-fit:contain;flex-shrink:0}
 .header-text{display:flex;flex-direction:column;gap:1px}
 .header-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:17px;letter-spacing:.5px;color:var(--text);line-height:1}
-.header-sub{font-size:11px;color:var(--muted);font-weight:400;letter-spacing:.3px}
+.header-sub{font-size:11px;color:var(--muted);font-weight:400}
 .badge-tag{margin-left:auto;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);padding:3px 8px;border-radius:3px;white-space:nowrap}
 main{flex:1;padding:24px;max-width:480px;margin:0 auto;width:100%}
-.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:40px 24px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;background:var(--surface)}
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:40px 24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface)}
 .upload-zone:hover{border-color:var(--accent);background:rgba(232,184,75,0.04)}
-.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.target-icon{width:72px;height:72px;margin:0 auto 18px}
-.upload-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:.5px;margin-bottom:8px}
+.upload-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;margin-bottom:8px}
 .upload-sub{font-size:13px;color:var(--muted);line-height:1.6;max-width:260px;margin:0 auto}
 .capture-btn{display:inline-flex;align-items:center;gap:8px;margin-top:20px;background:var(--accent);color:#0a0c0f;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:.5px;padding:11px 22px;border-radius:6px;border:none;cursor:pointer}
 .hint{margin-top:12px;font-size:11px;color:var(--muted)}
@@ -33,8 +27,7 @@ main{flex:1;padding:24px;max-width:480px;margin:0 auto;width:100%}
 .preview-wrap img{width:100%;display:block;max-height:360px;object-fit:cover}
 .preview-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,12,15,.92) 0%,transparent 55%)}
 .preview-actions{position:absolute;bottom:0;left:0;right:0;padding:16px;display:flex;gap:8px}
-.btn-analyze{flex:1;background:var(--accent);color:#0a0c0f;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:17px;letter-spacing:.5px;padding:12px;border-radius:6px;border:none;cursor:pointer;transition:opacity .15s}
-.btn-analyze:hover{opacity:.85}
+.btn-analyze{flex:1;background:var(--accent);color:#0a0c0f;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:17px;padding:12px;border-radius:6px;border:none;cursor:pointer}
 .btn-retake{background:var(--surface2);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;padding:12px 16px;border-radius:6px;border:1px solid var(--border);cursor:pointer}
 .loading-wrap{display:none;padding:56px 0;text-align:center}
 .spinner{width:52px;height:52px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--accent);animation:spin .8s linear infinite;margin:0 auto 20px}
@@ -53,21 +46,21 @@ main{flex:1;padding:24px;max-width:480px;margin:0 auto;width:100%}
 .target-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px}
 .target-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px}
 .target-card-name{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;flex-shrink:0}
-.badge{font-size:10px;font-weight:600;padding:3px 9px;border-radius:3px;letter-spacing:.3px;white-space:nowrap}
+.badge{font-size:10px;font-weight:600;padding:3px 9px;border-radius:3px;white-space:nowrap}
 .badge-great{background:rgba(74,222,128,0.12);color:var(--green);border:1px solid rgba(74,222,128,0.2)}
 .badge-good{background:rgba(74,144,196,0.12);color:var(--accent2);border:1px solid rgba(74,144,196,0.2)}
 .badge-medium{background:rgba(251,146,60,0.12);color:var(--orange);border:1px solid rgba(251,146,60,0.2)}
 .badge-far{background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
 .target-card-body{display:flex;gap:12px;align-items:flex-start}
-.target-svg-wrap{flex-shrink:0}
 .target-card-info{flex:1}
 .desvio-tag{font-size:10px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:4px}
 .desvio-tag::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--border)}
 .target-card-text{font-size:12px;color:#8a95a3;line-height:1.7}
 .pattern-card{background:var(--surface);border:1px solid rgba(232,184,75,0.2);border-radius:10px;padding:14px 16px;margin-bottom:12px}
-.coach-card{background:rgba(74,144,196,0.06);border:1px solid rgba(74,144,196,0.2);border-radius:10px;padding:14px 16px;margin-bottom:4px}
+.coach-card{background:rgba(74,144,196,0.06);border:1px solid rgba(74,144,196,0.2);border-radius:10px;padding:14px 16px;margin-bottom:12px}
 .coach-title{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--accent2);margin-bottom:5px}
 .coach-text{font-size:12px;color:rgba(160,185,210,0.85);line-height:1.7}
+.btn-new-bottom{width:100%;background:var(--accent);color:#0a0c0f;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.5px;padding:14px;border-radius:8px;border:none;cursor:pointer;margin-top:4px}
 .error-wrap{display:none;background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:10px;padding:20px;margin-top:12px;text-align:center}
 .error-text{font-size:13px;color:var(--red);line-height:1.6}
 .error-retry{margin-top:12px;background:transparent;color:var(--red);border:1px solid rgba(248,113,113,0.4);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;padding:8px 18px;border-radius:5px;cursor:pointer}
@@ -91,7 +84,7 @@ footer{padding:14px 24px;text-align:center;border-top:1px solid var(--border);fo
 
   <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
     <input type="file" accept="image/*" id="fileInput" style="display:none"/>
-    <div class="target-icon">
+    <div style="width:72px;height:72px;margin:0 auto 18px">
       <svg viewBox="0 0 72 72" fill="none" width="72" height="72">
         <circle cx="36" cy="36" r="34" fill="#4A90C4" opacity=".15" stroke="#4A90C4" stroke-width="1.5"/>
         <circle cx="36" cy="36" r="25" fill="#C04040" opacity=".2" stroke="#C04040" stroke-width="1.5"/>
@@ -103,13 +96,13 @@ footer{padding:14px 24px;text-align:center;border-top:1px solid var(--border);fo
     </div>
     <div class="upload-title">Fotografe o alvo</div>
     <div class="upload-sub">Tire uma foto do alvo após a sessão. A análise de dispersão é gerada automaticamente.</div>
-    <div class="capture-btn">
+    <button class="capture-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
         <circle cx="12" cy="13" r="4"/>
       </svg>
       Abrir câmera / galeria
-    </div>
+    </button>
     <div class="hint">Funciona com qualquer tipo de alvo</div>
   </div>
 
@@ -129,7 +122,7 @@ footer{padding:14px 24px;text-align:center;border-top:1px solid var(--border);fo
   </div>
 
   <div class="error-wrap" id="errorWrap">
-    <div class="error-text" id="errorText">Não foi possível analisar a imagem.<br/>Tente com boa iluminação e o alvo centralizado na foto.</div>
+    <div class="error-text" id="errorText">Não foi possível analisar a imagem.</div>
     <button class="error-retry" id="btnRetry">Tentar novamente</button>
   </div>
 
@@ -149,46 +142,63 @@ footer{padding:14px 24px;text-align:center;border-top:1px solid var(--border);fo
 const $ = id => document.getElementById(id);
 const show = el => el.style.display = 'block';
 const hide = el => el.style.display = 'none';
-
 let currentBase64 = null;
 let currentMime = 'image/jpeg';
 
-$('fileInput').addEventListener('change', e => {
+$('fileInput').addEventListener('change', function(e) {
   const file = e.target.files[0];
   if (!file) return;
   const img = new Image();
   const objectUrl = URL.createObjectURL(file);
-  img.onload = () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0);
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-    currentBase64 = dataUrl.split(',')[1];
-    currentMime = 'image/jpeg';
-    $('previewImg').src = dataUrl;
+  img.onload = function() {
+    try {
+      const canvas = document.createElement('canvas');
+      const MAX = 1600;
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.90);
+      currentBase64 = dataUrl.split(',')[1];
+      currentMime = 'image/jpeg';
+      $('previewImg').src = dataUrl;
+      URL.revokeObjectURL(objectUrl);
+      hide($('uploadZone'));
+      hide($('errorWrap'));
+      show($('previewWrap'));
+    } catch(err) {
+      alert('Erro ao carregar imagem: ' + err.message);
+    }
+  };
+  img.onerror = function() {
+    alert('Não foi possível carregar esta imagem. Tente outra.');
     URL.revokeObjectURL(objectUrl);
-    hide($('uploadZone')); hide($('errorWrap')); show($('previewWrap'));
   };
   img.src = objectUrl;
 });
 
 $('btnRetake').addEventListener('click', reset);
 $('btnNew').addEventListener('click', reset);
-$('btnRetry').addEventListener('click', () => { hide($('errorWrap')); show($('previewWrap')); });
+$('btnRetry').addEventListener('click', function() { hide($('errorWrap')); show($('previewWrap')); });
 $('btnAnalyze').addEventListener('click', analyze);
 
 function reset() {
   $('fileInput').value = '';
   currentBase64 = null;
-  ['previewWrap','loadingWrap','errorWrap','resultsWrap'].forEach(id => hide($(id)));
+  ['previewWrap','loadingWrap','errorWrap','resultsWrap'].forEach(function(id){ hide($(id)); });
   show($('uploadZone'));
 }
 
 async function analyze() {
   if (!currentBase64) return;
-  hide($('previewWrap')); hide($('errorWrap')); show($('loadingWrap'));
+  hide($('previewWrap'));
+  hide($('errorWrap'));
+  show($('loadingWrap'));
   try {
     const res = await fetch('/api/analyze', {
       method: 'POST',
@@ -196,7 +206,7 @@ async function analyze() {
       body: JSON.stringify({ imageBase64: currentBase64, imageMime: currentMime })
     });
     if (!res.ok) {
-      const err = await res.json();
+      const err = await res.json().catch(() => ({}));
       throw new Error(err.error || 'Erro no servidor');
     }
     const data = await res.json();
@@ -209,165 +219,152 @@ async function analyze() {
 }
 
 function badgeClass(l) {
-  return ({great:'badge-great',good:'badge-good',medium:'badge-medium',far:'badge-far'})[l]||'badge-medium';
+  return ({great:'badge-great',good:'badge-good',medium:'badge-medium',far:'badge-far'})[l] || 'badge-medium';
 }
 
-// Gera SVG do alvo com dispersão baseado no badgeLevel e desvio
 function generateTargetSVG(target) {
-  const level = target.badgeLevel || 'medium';
-  const desvio = (target.desvio || '').toLowerCase();
+  var level = target.badgeLevel || 'medium';
+  var desvio = (target.desvio || '').toLowerCase();
+  var dx = 0, dy = 0;
+  if (desvio.indexOf('esquerda') >= 0) dx = -9;
+  if (desvio.indexOf('direita') >= 0) dx = 9;
+  if (desvio.indexOf('baixo') >= 0 || desvio.indexOf('abaixo') >= 0) dy = 9;
+  if (desvio.indexOf('cima') >= 0 || desvio.indexOf('acima') >= 0) dy = -9;
+  if (desvio.indexOf('leve') >= 0) { dx = Math.round(dx * 0.5); dy = Math.round(dy * 0.5); }
+  var cx = 65, cy = 65;
+  var gx = cx + dx, gy = cy + dy;
+  var holesMap = {
+    great: [[0,0],[4,-3],[-3,4],[5,4],[-4,-4],[2,6],[-5,2],[3,-6]],
+    good:  [[0,0],[6,-4],[-5,5],[7,5],[-6,-5],[3,8],[-7,2],[4,-8],[8,-2]],
+    medium:[[0,0],[8,-6],[-7,7],[10,7],[-8,-7],[4,11],[-9,3],[5,-11],[11,-3],[-3,9]],
+    far:   [[0,0],[12,-9],[-10,10],[14,10],[-12,-10],[6,15],[-13,4],[7,-15],[14,-5],[-5,13],[10,8],[-8,-12]]
+  };
+  var holes = holesMap[level] || holesMap.medium;
+  var r = level === 'great' ? 3.5 : level === 'good' ? 4 : level === 'medium' ? 4.5 : 5;
+  var spread = level === 'great' ? 12 : level === 'good' ? 17 : level === 'medium' ? 22 : 28;
+  var holesHTML = holes.map(function(h) {
+    return '<circle cx="'+(gx+h[0])+'" cy="'+(gy+h[1])+'" r="'+r+'" fill="#111" opacity="0.88"/>';
+  }).join('');
+  var arrow = (dx !== 0 || dy !== 0)
+    ? '<line x1="'+cx+'" y1="'+cy+'" x2="'+gx+'" y2="'+gy+'" stroke="#E8B84B" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.9"/>'
+    : '';
+  return '<svg width="80" height="80" viewBox="0 0 130 130" style="flex-shrink:0">'
+    + '<circle cx="65" cy="65" r="62" fill="#4A90C4"/>'
+    + '<circle cx="65" cy="65" r="47" fill="#C04040"/>'
+    + '<circle cx="65" cy="65" r="34" fill="#AA3333"/>'
+    + '<circle cx="65" cy="65" r="22" fill="#DDBB00"/>'
+    + '<circle cx="65" cy="65" r="13" fill="#CCAA00"/>'
+    + '<circle cx="65" cy="65" r="5" fill="#BBAA00"/>'
+    + '<line x1="58" y1="65" x2="72" y2="65" stroke="#333" stroke-width="0.6"/>'
+    + '<line x1="65" y1="58" x2="65" y2="72" stroke="#333" stroke-width="0.6"/>'
+    + holesHTML
+    + '<ellipse cx="'+gx+'" cy="'+gy+'" rx="'+spread+'" ry="'+Math.round(spread*0.82)+'" fill="none" stroke="#111" stroke-width="2" stroke-dasharray="5,3"/>'
+    + '<circle cx="'+gx+'" cy="'+gy+'" r="4" fill="none" stroke="#111" stroke-width="1.5"/>'
+    + '<circle cx="'+gx+'" cy="'+gy+'" r="1.5" fill="#111"/>'
+    + arrow
+    + '</svg>';
+}
 
-  // Determina offset de desvio baseado no texto
-  let dx = 0, dy = 0;
-  if (desvio.includes('esquerda')) dx = -8;
-  if (desvio.includes('direita')) dx = 8;
-  if (desvio.includes('baixo') || desvio.includes('abaixo')) dy = 8;
-  if (desvio.includes('cima') || desvio.includes('acima')) dy = -8;
-  if (desvio.includes('leve')) { dx = dx * 0.5; dy = dy * 0.5; }
-
-  // Raio dos furos baseado no nível
-  const holeRadius = level === 'great' ? 4 : level === 'good' ? 5 : level === 'medium' ? 6 : 7;
-  const cx = 65, cy = 65;
-  const groupX = cx + dx, groupY = cy + dy;
-
-  // Posições dos furos ao redor do centróide
-  const holes = level === 'great'
-    ? [ [0,0],[4,-3],[-3,4],[5,4],[-4,-4],[2,6],[-5,2],[3,-6] ]
-    : level === 'good'
-    ? [ [0,0],[6,-4],[-5,5],[7,5],[-6,-5],[3,8],[-7,2],[4,-8],[8,-2] ]
-    : level === 'medium'
-    ? [ [0,0],[8,-6],[-7,7],[10,7],[-8,-7],[4,11],[-9,3],[5,-11],[11,-3],[-3,9] ]
-    : [ [0,0],[12,-9],[-10,10],[14,10],[-12,-10],[6,15],[-13,4],[7,-15],[14,-5],[-5,13],[10,8],[-8,-12] ];
-
-  const holesHTML = holes.map(([hx, hy]) =>
-    `<circle cx="${groupX + hx}" cy="${groupY + hy}" r="${holeRadius * 0.8}" fill="#111" opacity="0.9"/>`
-  ).join('');
-
-  // Elipse de dispersão
-  const spread = level === 'great' ? 12 : level === 'good' ? 16 : level === 'medium' ? 20 : 26;
-  const spreadY = spread * 0.85;
-
-  return `<svg width="80" height="80" viewBox="0 0 130 130" style="flex-shrink:0">
-    <circle cx="65" cy="65" r="62" fill="#4A90C4"/>
-    <circle cx="65" cy="65" r="47" fill="#C04040"/>
-    <circle cx="65" cy="65" r="34" fill="#AA3333"/>
-    <circle cx="65" cy="65" r="22" fill="#DDBB00"/>
-    <circle cx="65" cy="65" r="13" fill="#CCAA00"/>
-    <circle cx="65" cy="65" r="5"  fill="#BBAA00"/>
-    <line x1="58" y1="65" x2="72" y2="65" stroke="#333" stroke-width="0.6"/>
-    <line x1="65" y1="58" x2="65" y2="72" stroke="#333" stroke-width="0.6"/>
-    ${holesHTML}
-    <ellipse cx="${groupX}" cy="${groupY}" rx="${spread}" ry="${spreadY}"
-      fill="none" stroke="#111" stroke-width="2" stroke-dasharray="5,3" opacity="0.9"/>
-    <circle cx="${groupX}" cy="${groupY}" r="4" fill="none" stroke="#111" stroke-width="1.5"/>
-    <circle cx="${groupX}" cy="${groupY}" r="1.5" fill="#111"/>
-    ${dx !== 0 || dy !== 0 ? `<line x1="${cx}" y1="${cy}" x2="${groupX}" y2="${groupY}" stroke="#E8B84B" stroke-width="1.2" stroke-dasharray="3,2" opacity="0.8"/>` : ''}
-  </svg>`;
+function generateUnifiedSVG(targets) {
+  var colors = ['#1a4a8a','#1a5c2e','#5a1a8a','#8a4a1a'];
+  var allHoles = '';
+  var cxSum = 0, cySum = 0;
+  targets.forEach(function(t, i) {
+    var level = t.badgeLevel || 'medium';
+    var desvio = (t.desvio || '').toLowerCase();
+    var dx = 0, dy = 0;
+    if (desvio.indexOf('esquerda') >= 0) dx = -12;
+    if (desvio.indexOf('direita') >= 0) dx = 12;
+    if (desvio.indexOf('baixo') >= 0 || desvio.indexOf('abaixo') >= 0) dy = 12;
+    if (desvio.indexOf('cima') >= 0 || desvio.indexOf('acima') >= 0) dy = -12;
+    if (desvio.indexOf('leve') >= 0) { dx = Math.round(dx*0.5); dy = Math.round(dy*0.5); }
+    var gx = 100 + dx, gy = 100 + dy;
+    cxSum += gx; cySum += gy;
+    var holes = level === 'great'
+      ? [[0,0],[5,-4],[-4,5],[6,5],[-5,-5],[3,7],[-6,2],[4,-7]]
+      : level === 'good'
+      ? [[0,0],[7,-5],[-6,6],[8,6],[-7,-6],[4,9],[-8,3],[5,-9]]
+      : [[0,0],[10,-7],[-8,8],[11,8],[-10,-8],[5,12],[-11,4],[6,-12]];
+    var col = colors[i % colors.length];
+    holes.forEach(function(h) {
+      allHoles += '<circle cx="'+(gx+h[0])+'" cy="'+(gy+h[1])+'" r="4.5" fill="'+col+'" opacity="0.82"/>';
+    });
+  });
+  var ucx = Math.round(cxSum / targets.length);
+  var ucy = Math.round(cySum / targets.length);
+  var legend = targets.map(function(t, i) {
+    return '<span style="font-size:10px;color:#6b7280;display:flex;align-items:center;gap:4px">'
+      + '<span style="width:8px;height:8px;border-radius:50%;background:'+colors[i]+';display:inline-block"></span>'
+      + t.id + '</span>';
+  }).join('');
+  return '<div style="display:flex;justify-content:center;margin:8px 0">'
+    + '<svg width="160" height="160" viewBox="0 0 200 200">'
+    + '<circle cx="100" cy="100" r="96" fill="#4A90C4"/>'
+    + '<circle cx="100" cy="100" r="72" fill="#C04040"/>'
+    + '<circle cx="100" cy="100" r="52" fill="#AA3333"/>'
+    + '<circle cx="100" cy="100" r="34" fill="#DDBB00"/>'
+    + '<circle cx="100" cy="100" r="20" fill="#CCAA00"/>'
+    + '<circle cx="100" cy="100" r="8" fill="#BBAA00"/>'
+    + '<line x1="86" y1="100" x2="114" y2="100" stroke="#333" stroke-width="0.8"/>'
+    + '<line x1="100" y1="86" x2="100" y2="114" stroke="#333" stroke-width="0.8"/>'
+    + allHoles
+    + '<ellipse cx="'+ucx+'" cy="'+ucy+'" rx="46" ry="36" fill="#000" fill-opacity="0.07" stroke="#111" stroke-width="2.2" stroke-dasharray="6,4"/>'
+    + '<circle cx="'+ucx+'" cy="'+ucy+'" r="8" fill="none" stroke="#111" stroke-width="1.5"/>'
+    + '<circle cx="'+ucx+'" cy="'+ucy+'" r="2.5" fill="#111"/>'
+    + '</svg></div>'
+    + '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:4px">'
+    + legend
+    + '<span style="font-size:10px;color:#6b7280;display:flex;align-items:center;gap:4px">'
+    + '<span style="width:14px;height:0;border-top:2px dashed #111;display:inline-block"></span>zona de dispersão</span>'
+    + '</div>';
 }
 
 function renderResults(a) {
   hide($('loadingWrap'));
-  let html = '';
+  var html = '';
 
-  html += `<div class="section-card fade-in">
-    <div class="section-label">${a.targetType||'Sessão analisada'}</div>
-    <div class="section-text">${a.summary}</div>
-  </div>`;
+  html += '<div class="section-card fade-in">'
+    + '<div class="section-label">' + (a.targetType || 'Sessão analisada') + '</div>'
+    + '<div class="section-text">' + a.summary + '</div>'
+    + '</div>';
 
-  // Gera alvo unificado com todos os furos sobrepostos
-  if (a.targets?.length) {
-    const colors = ['#1a4a8a','#1a5c2e','#5a1a8a','#8a3a1a'];
-    let allHoles = '';
-    let cx_sum = 0, cy_sum = 0, count = 0;
-    a.targets.forEach((t, i) => {
-      const level = t.badgeLevel || 'medium';
-      const desvio = (t.desvio || '').toLowerCase();
-      let dx = 0, dy = 0;
-      if (desvio.includes('esquerda')) dx = -10;
-      if (desvio.includes('direita')) dx = 10;
-      if (desvio.includes('baixo') || desvio.includes('abaixo')) dy = 10;
-      if (desvio.includes('cima') || desvio.includes('acima')) dy = -10;
-      if (desvio.includes('leve')) { dx = dx * 0.5; dy = dy * 0.5; }
-      const gx = 100 + dx, gy = 100 + dy;
-      cx_sum += gx; cy_sum += gy; count++;
-      const spread = level === 'great' ? 8 : level === 'good' ? 13 : level === 'medium' ? 18 : 24;
-      const holes = level === 'great'
-        ? [[0,0],[5,-4],[-4,5],[6,5],[-5,-5],[3,7],[-6,2],[4,-7]]
-        : level === 'good'
-        ? [[0,0],[7,-5],[-6,6],[8,6],[-7,-6],[4,9],[-8,3],[5,-9],[9,-3]]
-        : [[0,0],[10,-7],[-8,8],[11,8],[-10,-8],[5,12],[-11,4],[6,-12],[12,-4],[-4,10]];
-      const col = colors[i % colors.length];
-      holes.forEach(([hx, hy]) => {
-        allHoles += `<circle cx="${gx+hx}" cy="${gy+hy}" r="4" fill="${col}" opacity="0.82"/>`;
-      });
-    });
-    const ucx = Math.round(cx_sum/count), ucy = Math.round(cy_sum/count);
-    const unifiedSVG = `<svg width="160" height="160" viewBox="0 0 200 200">
-      <circle cx="100" cy="100" r="96" fill="#4A90C4"/>
-      <circle cx="100" cy="100" r="72" fill="#C04040"/>
-      <circle cx="100" cy="100" r="52" fill="#AA3333"/>
-      <circle cx="100" cy="100" r="34" fill="#DDBB00"/>
-      <circle cx="100" cy="100" r="20" fill="#CCAA00"/>
-      <circle cx="100" cy="100" r="8"  fill="#BBAA00"/>
-      <line x1="86" y1="100" x2="114" y2="100" stroke="#333" stroke-width="0.8"/>
-      <line x1="100" y1="86"  x2="100" y2="114" stroke="#333" stroke-width="0.8"/>
-      ${allHoles}
-      <ellipse cx="${ucx}" cy="${ucy}" rx="46" ry="36" fill="#000" fill-opacity="0.07" stroke="#111" stroke-width="2.2" stroke-dasharray="6,4"/>
-      <circle cx="${ucx}" cy="${ucy}" r="8" fill="none" stroke="#111" stroke-width="1.5"/>
-      <circle cx="${ucx}" cy="${ucy}" r="2.5" fill="#111"/>
-    </svg>`;
-    const legendColors = ['#1a4a8a','#1a5c2e','#5a1a8a','#8a3a1a'];
-    let legendHTML = a.targets.map((t,i) =>
-      `<span style="font-size:10px;color:#6b7280;display:flex;align-items:center;gap:4px">
-        <span style="width:8px;height:8px;border-radius:50%;background:${legendColors[i]};display:inline-block"></span>${t.id}
-      </span>`
-    ).join('');
-    html += `<div class="section-card fade-in" style="margin-bottom:12px">
-      <div class="section-label">Agrupamento geral · sobreposição das séries</div>
-      <div style="display:flex;justify-content:center;margin:8px 0">${unifiedSVG}</div>
-      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:4px">${legendHTML}
-        <span style="font-size:10px;color:#6b7280;display:flex;align-items:center;gap:4px">
-          <span style="width:14px;height:0;border-top:2px dashed #111;display:inline-block"></span>zona de dispersão
-        </span>
-      </div>
-    </div>`;
-  }
+  if (a.targets && a.targets.length > 0) {
+    html += '<div class="section-card fade-in">'
+      + '<div class="section-label">Agrupamento geral · sobreposição das séries</div>'
+      + generateUnifiedSVG(a.targets)
+      + '</div>';
 
-  if (a.targets?.length) {
-    html += `<div class="targets-label">Dispersão por série</div>`;
-    a.targets.forEach((t, i) => {
-      html += `<div class="target-card fade-in" style="animation-delay:${i*.08}s">
-        <div class="target-card-header">
-          <div class="target-card-name">${t.label} · ${t.id}</div>
-          <div class="badge ${badgeClass(t.badgeLevel)}">${t.badge}</div>
-        </div>
-        <div class="target-card-body">
-          ${generateTargetSVG(t)}
-          <div class="target-card-info">
-            ${t.desvio ? `<div class="desvio-tag">${t.desvio}</div>` : ''}
-            <div class="target-card-text">${t.analysis}</div>
-          </div>
-        </div>
-      </div>`;
+    html += '<div class="targets-label">Dispersão por série</div>';
+    a.targets.forEach(function(t, i) {
+      html += '<div class="target-card fade-in" style="animation-delay:'+(i*0.08)+'s">'
+        + '<div class="target-card-header">'
+        + '<div class="target-card-name">' + t.label + ' · ' + t.id + '</div>'
+        + '<div class="badge ' + badgeClass(t.badgeLevel) + '">' + t.badge + '</div>'
+        + '</div>'
+        + '<div class="target-card-body">'
+        + generateTargetSVG(t)
+        + '<div class="target-card-info">'
+        + (t.desvio ? '<div class="desvio-tag">' + t.desvio + '</div>' : '')
+        + '<div class="target-card-text">' + t.analysis + '</div>'
+        + '</div></div></div>';
     });
   }
 
   if (a.generalPattern) {
-    html += `<div class="pattern-card fade-in" style="animation-delay:.28s">
-      <div class="section-label">Padrão geral</div>
-      <div class="section-text">${a.generalPattern}</div>
-    </div>`;
+    html += '<div class="pattern-card fade-in" style="animation-delay:.28s">'
+      + '<div class="section-label">Padrão geral</div>'
+      + '<div class="section-text">' + a.generalPattern + '</div>'
+      + '</div>';
   }
 
-  html += `<div class="coach-card fade-in" style="animation-delay:.36s">
-    <div class="coach-title">Leve para o seu técnico</div>
-    <div class="coach-text">Esses dados e o alvo físico contam muito mais do que parece. Um técnico experiente consegue enxergar padrões que vão além da pontuação — postura, empunhadura, âncora — e vai te dar ajustes precisos que fazem diferença real no próximo treino.</div>
-  </div>
-  <div class="fade-in" style="animation-delay:.44s;margin-top:16px;text-align:center">
-    <button onclick="reset()" style="width:100%;background:var(--accent);color:#0a0c0f;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.5px;padding:14px;border-radius:8px;border:none;cursor:pointer;transition:opacity .15s">
-      + Analisar novo alvo
-    </button>
-  </div>`;
+  html += '<div class="coach-card fade-in" style="animation-delay:.36s">'
+    + '<div class="coach-title">Leve para o seu técnico</div>'
+    + '<div class="coach-text">Esses dados e o alvo físico contam muito mais do que parece. Um técnico experiente consegue enxergar padrões que vão além da pontuação — postura, empunhadura, âncora — e vai te dar ajustes precisos que fazem diferença real no próximo treino.</div>'
+    + '</div>';
+
+  html += '<div class="fade-in" style="animation-delay:.44s;margin-top:4px">'
+    + '<button class="btn-new-bottom" onclick="reset()">+ Analisar novo alvo</button>'
+    + '</div>';
 
   $('resultsContent').innerHTML = html;
   show($('resultsWrap'));
