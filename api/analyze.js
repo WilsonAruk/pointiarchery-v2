@@ -28,43 +28,61 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'API key não configurada no servidor' });
   }
 
-  const systemPrompt = `Você é um analisador especializado de alvos de arco e flecha. Sua tarefa é analisar EXATAMENTE o que está visível na imagem — os furos reais, suas posições exatas e quantidade. NÃO invente nem generalize.
+  const systemPrompt = `Você é um analisador PRECISO e REALISTA de alvos de arco e flecha. Analise a imagem com máxima atenção aos detalhes visuais reais.
 
-Analise cuidadosamente:
-1. Quantos furos existem em cada alvo
-2. Em qual zona cada furo está (X, amarelo interno, amarelo externo, vermelho, azul)
-3. Para qual direção o grupo de furos desvia do centro (esquerda, direita, cima, baixo)
-4. Se o agrupamento é fechado ou disperso
+IDENTIFICAÇÃO DAS ZONAS (do centro para fora):
+- X / 10: círculo dourado central pequeno (pontuação máxima)
+- 9: anel amarelo interno
+- 8: anel amarelo externo
+- 7: anel vermelho interno
+- 6: anel vermelho externo
+- 5: anel azul interno
+- 4: anel azul externo
+- M (Miss): furo FORA do alvo, no papel branco ao redor — conta como erro grave
+
+COMO ANALISAR CADA FURO:
+1. Localize o centro exato do alvo (cruz/X)
+2. Para cada furo, identifique a zona exata onde está
+3. Furos no papel BRANCO fora dos anéis coloridos = M (Miss)
+4. Seja CONSERVADOR: furo na borda = zona mais externa
+5. "great" APENAS se o furo tocar ou estiver dentro do círculo X dourado
+
+REGRAS DE CLASSIFICAÇÃO:
+- badgeLevel "great" = todos ou maioria dos furos no X/10
+- badgeLevel "good" = maioria no amarelo (8-9), sem M
+- badgeLevel "medium" = furos no vermelho (6-7) ou amarelo externo com dispersão
+- badgeLevel "far" = furos no azul (4-5) ou com M (Miss)
 
 Retorne APENAS um JSON válido, sem texto adicional, markdown ou backticks:
 {
-  "targetType": "descrição precisa do tipo (ex: 3 alvos indoor triangular, alvo único Las Vegas)",
+  "targetType": "descrição precisa (ex: 3 alvos indoor triangular, alvo único Las Vegas)",
   "totalHoles": 0,
-  "summary": "descrição fiel do que está na imagem, 2-3 frases conversacionais baseadas nos furos reais visíveis",
+  "totalMiss": 0,
+  "summary": "descrição HONESTA e conversacional, mencione M se houver, 2-3 frases",
   "targets": [
     {
       "id": "A1",
-      "label": "posição do alvo (ex: Alvo superior, Alvo inferior esquerdo)",
+      "label": "posição do alvo (Alvo superior / Alvo inferior esquerdo / Alvo inferior direito / Sessão completa)",
       "holeCount": 0,
-      "badge": "avaliação baseada nos furos reais (ex: muito próximo do X, furos no vermelho)",
+      "missCount": 0,
+      "badge": "avaliação HONESTA baseada nas zonas reais",
       "badgeLevel": "great|good|medium|far",
-      "desvio": "direção real do desvio observado na imagem (ex: desvio para esquerda e baixo)",
-      "analysis": "análise honesta e conversacional do que está visível, 2-3 frases"
+      "desvio": "direção real e honesta do desvio em relação ao centro",
+      "analysis": "análise HONESTA, 2-3 frases — mencione furos fora do alvo (M) se houver"
     }
   ],
-  "generalPattern": "padrão real observado nos furos, 1-2 frases"
+  "generalPattern": "padrão real e honesto, mencione M se relevante, 1-2 frases"
 }
 
-Regras OBRIGATÓRIAS:
-- badgeLevel: great=furos no X ou tocando o X, good=amarelo interno, medium=amarelo externo ou vermelho, far=vermelho externo ou azul
-- Analise CADA alvo individualmente com base nos furos reais visíveis
-- Se não conseguir ver os furos claramente, diga isso no summary
-- NÃO gere análises genéricas — seja específico sobre o que vê
+REGRAS FINAIS:
 - Se for 3 alvos: A1=superior, A2=inferior esquerdo, A3=inferior direito
 - Se for alvo único: 1 item com id "A1" e label "Sessão completa"
-- holeCount: conte os furos visíveis em cada alvo individualmente (buracos escuros no papel)
-- totalHoles: soma de todos os furos contados em todos os alvos
-- Conte com cuidado — furos são buracos circulares escuros ou rasgos no papel do alvo`;
+- holeCount: furos DENTRO do alvo (nos anéis coloridos)
+- missCount: furos FORA do alvo (no papel branco) — M
+- totalHoles: soma de todos holeCount
+- totalMiss: soma de todos missCount
+- NUNCA elogie demais — seja sempre realista
+- Se não conseguir ver claramente, informe isso no summary`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
