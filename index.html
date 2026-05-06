@@ -252,7 +252,7 @@ function badgeClass(l) {
 function generateTargetSVG(target) {
   var cx = 65, cy = 65;
   // SVG scale: alvo radius = 62px, coordenadas da API: 100 unidades = 62px
-  var scale = 0.55;
+  var scale = 0.52; // 130px SVG: radius=62, API 100units=62px
 
   var desvio = (target.desvio || '').toLowerCase();
   var dx = 0, dy = 0;
@@ -275,8 +275,9 @@ function generateTargetSVG(target) {
       // Clamp miss holes to just outside the target ring
       if (isMiss) {
         var angle = Math.atan2(h.y||1, h.x||1);
-        hx = Math.round(cx + Math.cos(angle) * 57);
-        hy = Math.round(cy + Math.sin(angle) * 57);
+        // Place just outside blue ring radius=47, so at ~53
+        hx = Math.round(cx + Math.cos(angle) * 54);
+        hy = Math.round(cy + Math.sin(angle) * 54);
         holesHTML += '<circle cx="'+hx+'" cy="'+hy+'" r="3.5" fill="#f87171" opacity="0.9"/>';
       } else {
         holesHTML += '<circle cx="'+hx+'" cy="'+hy+'" r="3.2" fill="#111" opacity="0.9"/>';
@@ -335,52 +336,61 @@ function generateUnifiedSVG(targets) {
   var colors = ['#1a4a8a','#1a5c2e','#5a1a8a','#8a4a1a'];
   var allHoles = '';
   var cxSum = 0, cySum = 0, count = 0;
-  var scale = 0.46; // unified SVG: center=100, radius=96
-  var ucx = 100, ucy = 100;
+  // Unified SVG: 200x200, center=100, full target radius=96
+  // API coordinates: -100 to +100 = inside target, >100 = miss
+  // Scale: 100 API units = 96 SVG units => scale = 0.96
+  // But miss should be just outside ring (~105 SVG units from center)
+  var scale = 0.92;
 
   targets.forEach(function(t, i) {
     var col = colors[i % colors.length];
     var holes = t.holes || [];
     var desvio = (t.desvio||'').toLowerCase();
     var dx = 0, dy = 0;
-    if (desvio.indexOf('esquerda') >= 0) dx = -12;
-    if (desvio.indexOf('direita') >= 0) dx = 12;
-    if (desvio.indexOf('baixo') >= 0) dy = 12;
-    if (desvio.indexOf('cima') >= 0) dy = -12;
+    if (desvio.indexOf('esquerda') >= 0) dx = -10;
+    if (desvio.indexOf('direita') >= 0) dx = 10;
+    if (desvio.indexOf('baixo') >= 0) dy = 10;
+    if (desvio.indexOf('cima') >= 0) dy = -10;
     if (desvio.indexOf('leve') >= 0) { dx=Math.round(dx*0.5); dy=Math.round(dy*0.5); }
     cxSum += 100+dx; cySum += 100+dy; count++;
 
     if (holes.length > 0) {
       holes.forEach(function(h) {
-        var isMiss = h.zone === 'M' || Math.abs(h.x||0) > 100 || Math.abs(h.y||0) > 100;
+        var isMiss = h.zone === 'M' || Math.sqrt((h.x||0)*(h.x||0)+(h.y||0)*(h.y||0)) > 95;
         var hx, hy;
         if (isMiss) {
+          // Place miss just outside the blue ring (~105 units from center)
           var angle = Math.atan2(h.y||1, h.x||1);
-          hx = Math.round(100 + Math.cos(angle)*88);
-          hy = Math.round(100 + Math.sin(angle)*88);
-          allHoles += '<circle cx="'+hx+'" cy="'+hy+'" r="4" fill="#f87171" opacity="0.8"/>';
+          hx = Math.round(100 + Math.cos(angle) * 104);
+          hy = Math.round(100 + Math.sin(angle) * 104);
+          allHoles += '<circle cx="'+hx+'" cy="'+hy+'" r="4.5" fill="#f87171" opacity="0.9"/>';
         } else {
-          hx = Math.round(100 + (h.x||0)*scale);
-          hy = Math.round(100 + (h.y||0)*scale);
-          allHoles += '<circle cx="'+hx+'" cy="'+hy+'" r="4" fill="'+col+'" opacity="0.82"/>';
+          hx = Math.round(100 + (h.x||0) * scale);
+          hy = Math.round(100 + (h.y||0) * scale);
+          allHoles += '<circle cx="'+hx+'" cy="'+hy+'" r="4" fill="'+col+'" opacity="0.85"/>';
         }
       });
     } else {
-      // Fallback
+      // Fallback with desvio offset
       var level = t.badgeLevel||'medium';
       var gx2 = 100+dx, gy2 = 100+dy;
-      var spread2 = level==='great'?8:level==='good'?14:level==='medium'?22:30;
-      var n2 = Math.max((t.holeCount||0),3);
+      var radiiMap = {great:[4,8,12],good:[10,16,22],medium:[24,32,42],far:[45,58,70]};
+      var radii2 = radiiMap[level]||radiiMap.medium;
+      var n2 = Math.max((t.holeCount||0), 3);
       for (var j=0;j<n2;j++) {
         var a=j*137.5*Math.PI/180;
-        var r=spread2*(0.3+Math.random()*0.7);
-        allHoles += '<circle cx="'+Math.round(gx2+Math.cos(a)*r)+'" cy="'+Math.round(gy2+Math.sin(a)*r)+'" r="4" fill="'+col+'" opacity="0.82"/>';
+        var r2=radii2[j%radii2.length]*(0.7+Math.random()*0.6);
+        allHoles += '<circle cx="'+Math.round(gx2+Math.cos(a)*r2)+'" cy="'+Math.round(gy2+Math.sin(a)*r2)+'" r="4" fill="'+col+'" opacity="0.82"/>';
+      }
+      for (var m=0;m<(t.missCount||0);m++) {
+        var a3=(m*73+i*30)*Math.PI/180;
+        allHoles += '<circle cx="'+Math.round(100+Math.cos(a3)*104)+'" cy="'+Math.round(100+Math.sin(a3)*104)+'" r="4.5" fill="#f87171" opacity="0.9"/>';
       }
     }
   });
 
-  ucx = count > 0 ? Math.round(cxSum/count) : 100;
-  ucy = count > 0 ? Math.round(cySum/count) : 100;
+  var ucx = count > 0 ? Math.round(cxSum/count) : 100;
+  var ucy = count > 0 ? Math.round(cySum/count) : 100;
 
   var legend = targets.map(function(t,i){
     return '<span style="font-size:10px;color:#6b7280;display:flex;align-items:center;gap:4px">'
@@ -388,7 +398,8 @@ function generateUnifiedSVG(targets) {
   }).join('');
 
   return '<div style="display:flex;justify-content:center;margin:8px 0">'
-    +'<svg width="160" height="160" viewBox="0 0 200 200">'
+    +'<svg width="180" height="180" viewBox="-10 -10 220 220">'
+    +'<rect x="-10" y="-10" width="220" height="220" fill="#13161b" rx="8"/>'
     +'<circle cx="100" cy="100" r="96" fill="#4A90C4"/>'
     +'<circle cx="100" cy="100" r="72" fill="#C04040"/>'
     +'<circle cx="100" cy="100" r="52" fill="#AA3333"/>'
@@ -404,7 +415,9 @@ function generateUnifiedSVG(targets) {
     +'</svg></div>'
     +'<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:4px">'+legend
     +'<span style="font-size:10px;color:#6b7280;display:flex;align-items:center;gap:4px">'
-    +'<span style="width:14px;height:0;border-top:2px dashed #111;display:inline-block"></span>zona de dispersão</span>'
+    +'<span style="width:8px;height:8px;border-radius:50%;background:#f87171;display:inline-block"></span>M (miss)</span>'
+    +'<span style="font-size:10px;color:#6b7280;display:flex;align-items:center;gap:4px">'
+    +'<span style="width:14px;height:0;border-top:2px dashed #111;display:inline-block"></span>dispersão</span>'
     +'</div>';
 }
 
