@@ -153,7 +153,7 @@ $('fileInput').addEventListener('change', function(e) {
   img.onload = function() {
     try {
       const canvas = document.createElement('canvas');
-      const MAX = 800;
+      const MAX = 1200;
       let w = img.width, h = img.height;
       console.log('Imagem original:', w, 'x', h);
       if (w > MAX || h > MAX) {
@@ -164,7 +164,7 @@ $('fileInput').addEventListener('change', function(e) {
       canvas.height = h;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
       currentBase64 = dataUrl.split(',')[1];
       currentMime = 'image/jpeg';
       console.log('Imagem redimensionada:', w, 'x', h, '| base64 length:', currentBase64.length);
