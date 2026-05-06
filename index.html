@@ -360,10 +360,20 @@ function renderResults(a) {
   if (a.targets && a.targets.length > 0) {
     var totalHoles = a.totalHoles || a.targets.reduce(function(s,t){ return s + (t.holeCount||0); }, 0);
     var totalBlock = '';
+    var totalMiss = a.totalMiss || a.targets.reduce(function(s,t){ return s + (t.missCount||0); }, 0);
     if (totalHoles > 0) {
-      totalBlock = '<div style="text-align:center;margin-top:12px;padding-top:10px;border-top:0.5px solid #2a2f3a">'
+      var missBlock = totalMiss > 0
+        ? '<div style="margin-left:20px">'
+          + '<span style="font-family:Barlow Condensed,sans-serif;font-size:32px;font-weight:700;color:#f87171">' + totalMiss + '</span>'
+          + '<span style="font-size:11px;color:#f87171;display:block;margin-top:2px;letter-spacing:1px;text-transform:uppercase">M (miss)</span>'
+          + '</div>'
+        : '';
+      totalBlock = '<div style="display:flex;justify-content:center;align-items:center;gap:0;margin-top:12px;padding-top:10px;border-top:0.5px solid #2a2f3a">'
+        + '<div>'
         + '<span style="font-family:Barlow Condensed,sans-serif;font-size:32px;font-weight:700;color:#E8B84B">' + totalHoles + '</span>'
-        + '<span style="font-size:11px;color:#6b7280;display:block;margin-top:2px;letter-spacing:1px;text-transform:uppercase">tiros contados na imagem</span>'
+        + '<span style="font-size:11px;color:#6b7280;display:block;margin-top:2px;letter-spacing:1px;text-transform:uppercase">tiros no alvo</span>'
+        + '</div>'
+        + missBlock
         + '</div>';
     }
     html += '<div class="section-card fade-in">'
@@ -374,7 +384,10 @@ function renderResults(a) {
 
     html += '<div class="targets-label">Dispersão por série</div>';
     a.targets.forEach(function(t, i) {
-      var hcLabel = t.holeCount > 0 ? ' <span style="font-size:11px;color:#6b7280;font-weight:400">(' + t.holeCount + ' tiros)</span>' : '';
+      var hcParts = [];
+      if (t.holeCount > 0) hcParts.push(t.holeCount + ' tiros');
+      if (t.missCount > 0) hcParts.push('<span style="color:#f87171">' + t.missCount + ' M</span>');
+      var hcLabel = hcParts.length > 0 ? ' <span style="font-size:11px;color:#6b7280;font-weight:400">(' + hcParts.join(' · ') + ')</span>' : '';
       html += '<div class="target-card fade-in" style="animation-delay:'+(i*0.08)+'s">'
         + '<div class="target-card-header">'
         + '<div class="target-card-name">' + t.label + ' · ' + t.id + hcLabel + '</div>'
