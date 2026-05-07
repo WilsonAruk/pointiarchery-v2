@@ -245,6 +245,7 @@ function badgeClass(l) {
 function generateTargetSVG(target) {
   var cx = 65, cy = 65;
   var zones = target.zones || {};
+  var isRecurve = (target.zones && (target.zones.z3 > 0 || target.zones.z2 > 0 || target.zones.z1 > 0));
   var desvio = (target.desvio || '').toLowerCase();
 
   var dx = 0, dy = 0;
@@ -255,9 +256,20 @@ function generateTargetSVG(target) {
   if (desvio.indexOf('leve') >= 0) { dx=Math.round(dx*0.5); dy=Math.round(dy*0.5); }
   var gx = cx+dx, gy = cy+dy;
 
-  // Zone radii: exact pixel ranges matching the SVG rings
-  // SVG rings: X=r5, z9=r5-13, z8=r13-22, z7=r22-34, z6=r34-40, z5=r40-44, z4=r44-47
-  var zoneConfig = [
+  // Zone radii for compound (5-color) target
+  // For recurve: outer rings extend further — z3/z2/z1 added outside blue
+  var zoneConfig = isRecurve ? [
+    {key:'X',  rMin:1,  rMax:4},
+    {key:'z9', rMin:5,  rMax:10},
+    {key:'z8', rMin:11, rMax:16},
+    {key:'z7', rMin:17, rMax:22},
+    {key:'z6', rMin:23, rMax:28},
+    {key:'z5', rMin:29, rMax:33},
+    {key:'z4', rMin:34, rMax:37},
+    {key:'z3', rMin:38, rMax:43},
+    {key:'z2', rMin:44, rMax:49},
+    {key:'z1', rMin:50, rMax:55}
+  ] : [
     {key:'X',  rMin:1,  rMax:4.5},
     {key:'z9', rMin:6,  rMax:12},
     {key:'z8', rMin:14, rMax:21},
@@ -276,24 +288,38 @@ function generateTargetSVG(target) {
     for (var i = 0; i < count; i++) {
       var angle = holeIdx * goldenAngle;
       var rRange = zc.rMax - zc.rMin;
-      // Distribute evenly within zone using golden angle
       var r = zc.rMin + rRange * ((holeIdx * 0.618) % 1);
       var hx = Math.round(gx + Math.cos(angle) * r);
       var hy = Math.round(gy + Math.sin(angle) * r);
-      // Clamp to SVG bounds
       hx = Math.max(3, Math.min(127, hx));
       hy = Math.max(3, Math.min(127, hy));
-      holesHTML += '<circle cx="'+hx+'" cy="'+hy+'" r="3" fill="#111" opacity="0.9"/>';
+      // Black/white zones: use white hole marker for visibility
+      var holeColor = (zc.key === 'z3' || zc.key === 'z2') ? '#fff' : '#111';
+      var holeStroke = (zc.key === 'z3' || zc.key === 'z2') ? 'stroke="#555" stroke-width="0.5"' : '';
+      holesHTML += '<circle cx="'+hx+'" cy="'+hy+'" r="3" fill="'+holeColor+'" opacity="0.95" '+holeStroke+'/>';
       holeIdx++;
     }
   });
 
-  // Miss — outside blue ring (r47), distributed around perimeter
-  var missCount = (zones['M'] || 0) + (target.missCount || 0) - (zones['M'] || 0);
-  missCount = zones['M'] || target.missCount || 0;
+  // z1 (white inner ring) — use dark hole
+  var z1count = zones['z1'] || 0;
+  for (var z1i = 0; z1i < z1count; z1i++) {
+    var angle = holeIdx * goldenAngle;
+    var r = 50 + (2 * ((holeIdx * 0.618) % 1));
+    var hx = Math.round(gx + Math.cos(angle) * r);
+    var hy = Math.round(gy + Math.sin(angle) * r);
+    hx = Math.max(3, Math.min(127, hx));
+    hy = Math.max(3, Math.min(127, hy));
+    holesHTML += '<circle cx="'+hx+'" cy="'+hy+'" r="3" fill="#111" opacity="0.9"/>';
+    holeIdx++;
+  }
+
+  // Miss holes
+  var missCount = zones['M'] || target.missCount || 0;
   for (var m = 0; m < missCount; m++) {
     var a = (m * 97 + 15) * Math.PI / 180;
-    var mr = 53 + (m % 4) * 2;
+    var mr = isRecurve ? 60 : 53;
+    mr += (m % 4) * 2;
     var mx = Math.round(cx + Math.cos(a) * mr);
     var my = Math.round(cy + Math.sin(a) * mr);
     mx = Math.max(2, Math.min(128, mx));
@@ -301,19 +327,18 @@ function generateTargetSVG(target) {
     holesHTML += '<circle cx="'+mx+'" cy="'+my+'" r="3.2" fill="#f87171" opacity="0.95"/>';
   }
 
-  // Dispersal ellipse centered on group centroid
-  var level = target.badgeLevel || 'medium';
-  var totalIn = (target.holeCount || 0);
-  // Compute weighted centroid radius based on zone distribution
+  // Compute weighted spread based on zone distribution
+  var zoneWeights = isRecurve
+    ? {X:2, z9:7, z8:13, z7:20, z6:26, z5:31, z4:36, z3:41, z2:47, z1:52}
+    : {X:2, z9:8, z8:16, z7:28, z6:37, z5:42, z4:45};
   var weightedR = 0, totalW = 0;
-  var zoneWeights = {X:2, z9:8, z8:16, z7:28, z6:37, z5:42, z4:45};
   Object.keys(zoneWeights).forEach(function(k) {
     var cnt = zones[k] || 0;
     weightedR += cnt * zoneWeights[k];
     totalW += cnt;
   });
   var avgR = totalW > 0 ? weightedR/totalW : 15;
-  var spread = Math.max(8, Math.min(40, avgR * 0.85));
+  var spread = Math.max(8, Math.min(50, avgR * 0.85));
 
   var arrow = (dx!==0||dy!==0)
     ? '<line x1="'+cx+'" y1="'+cy+'" x2="'+gx+'" y2="'+gy+'" stroke="#E8B84B" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.8"/>'
@@ -322,16 +347,31 @@ function generateTargetSVG(target) {
     ? '<text x="65" y="127" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="8" fill="#f87171" font-weight="700">'+missCount+' M</text>'
     : '';
 
+  // Build SVG rings based on type
+  var rings = isRecurve
+    ? '<circle cx="65" cy="65" r="62" fill="#eee"/>'   // white outer
+      +'<circle cx="65" cy="65" r="56" fill="#ddd"/>'   // white z1
+      +'<circle cx="65" cy="65" r="50" fill="#333"/>'   // black z2
+      +'<circle cx="65" cy="65" r="44" fill="#444"/>'   // black z3
+      +'<circle cx="65" cy="65" r="38" fill="#4A90C4"/>'// blue z4
+      +'<circle cx="65" cy="65" r="34" fill="#3A80B4"/>'// blue z5
+      +'<circle cx="65" cy="65" r="29" fill="#C04040"/>'// red z6
+      +'<circle cx="65" cy="65" r="23" fill="#AA3333"/>'// red z7
+      +'<circle cx="65" cy="65" r="17" fill="#DDBB00"/>'// yellow z8
+      +'<circle cx="65" cy="65" r="11" fill="#CCAA00"/>'// yellow z9
+      +'<circle cx="65" cy="65" r="5"  fill="#BBAA00"/>'// X
+    : '<circle cx="65" cy="65" r="62" fill="#4A90C4"/>'
+      +'<circle cx="65" cy="65" r="47" fill="#C04040"/>'
+      +'<circle cx="65" cy="65" r="34" fill="#AA3333"/>'
+      +'<circle cx="65" cy="65" r="22" fill="#DDBB00"/>'
+      +'<circle cx="65" cy="65" r="13" fill="#CCAA00"/>'
+      +'<circle cx="65" cy="65" r="5"  fill="#BBAA00"/>';
+
   return '<svg width="80" height="80" viewBox="0 0 130 130" style="flex-shrink:0">'
     +'<rect width="130" height="130" fill="#13161b" rx="4"/>'
-    +'<circle cx="65" cy="65" r="62" fill="#4A90C4"/>'
-    +'<circle cx="65" cy="65" r="47" fill="#C04040"/>'
-    +'<circle cx="65" cy="65" r="34" fill="#AA3333"/>'
-    +'<circle cx="65" cy="65" r="22" fill="#DDBB00"/>'
-    +'<circle cx="65" cy="65" r="13" fill="#CCAA00"/>'
-    +'<circle cx="65" cy="65" r="5"  fill="#BBAA00"/>'
-    +'<line x1="58" y1="65" x2="72" y2="65" stroke="#444" stroke-width="0.6"/>'
-    +'<line x1="65" y1="58" x2="65" y2="72" stroke="#444" stroke-width="0.6"/>'
+    +rings
+    +'<line x1="58" y1="65" x2="72" y2="65" stroke="#555" stroke-width="0.6"/>'
+    +'<line x1="65" y1="58" x2="65" y2="72" stroke="#555" stroke-width="0.6"/>'
     +holesHTML
     +'<ellipse cx="'+gx+'" cy="'+gy+'" rx="'+Math.round(spread)+'" ry="'+Math.round(spread*0.82)+'" fill="none" stroke="#111" stroke-width="1.8" stroke-dasharray="4,3" opacity="0.7"/>'
     +'<circle cx="'+gx+'" cy="'+gy+'" r="2.5" fill="none" stroke="#111" stroke-width="1.2"/>'
@@ -347,16 +387,17 @@ function generateUnifiedSVG(targets) {
   var cxSum = 0, cySum = 0, count = 0;
   var goldenAngle = 137.508 * Math.PI / 180;
 
-  // Unified 200x200: rings scaled ~2x from 130 SVG
-  // X=r8, z9=r8-20, z8=r20-34, z7=r34-52, z6=r52-62, z5=r62-68, z4=r68-72, blue=r72-96
-  var zoneRadii = {
-    X:  [1, 7],
-    z9: [9, 19],
-    z8: [21, 33],
-    z7: [35, 51],
-    z6: [53, 61],
-    z5: [63, 67],
-    z4: [69, 71]
+  // Check if any target is recurve
+  var isRecurve = targets.some(function(t) {
+    return t.zones && (t.zones.z3 > 0 || t.zones.z2 > 0 || t.zones.z1 > 0);
+  });
+
+  // Zone radii for unified SVG (200x200)
+  var zoneRadii = isRecurve ? {
+    X:[1,7], z9:[8,16], z8:[17,26], z7:[27,36], z6:[37,46],
+    z5:[47,54], z4:[55,62], z3:[63,72], z2:[73,82], z1:[83,90]
+  } : {
+    X:[1,7], z9:[9,19], z8:[21,33], z7:[35,51], z6:[53,61], z5:[63,67], z4:[69,71]
   };
 
   targets.forEach(function(t, i) {
@@ -372,7 +413,7 @@ function generateUnifiedSVG(targets) {
     var gx=100+dx, gy=100+dy;
     cxSum+=gx; cySum+=gy; count++;
 
-    var hIdx = i * 13; // offset per target for visual separation
+    var hIdx = i * 13;
     Object.keys(zoneRadii).forEach(function(zk) {
       var cnt = zones[zk]||0;
       var rMin=zoneRadii[zk][0], rMax=zoneRadii[zk][1];
@@ -389,13 +430,33 @@ function generateUnifiedSVG(targets) {
     var mc = zones['M']||t.missCount||0;
     for(var m=0;m<mc;m++){
       var a=(i*40+m*97+15)*Math.PI/180;
-      var mr=98+(m%3)*5;
+      var mr = isRecurve ? 105 : 98;
+      mr += (m%3)*5;
       allHoles+='<circle cx="'+Math.round(100+Math.cos(a)*mr)+'" cy="'+Math.round(100+Math.sin(a)*mr)+'" r="4" fill="#f87171" opacity="0.95"/>';
     }
   });
 
   var ucx=count>0?Math.round(cxSum/count):100;
   var ucy=count>0?Math.round(cySum/count):100;
+
+  var rings = isRecurve
+    ? '<circle cx="100" cy="100" r="96" fill="#eee"/>'
+      +'<circle cx="100" cy="100" r="88" fill="#ddd"/>'
+      +'<circle cx="100" cy="100" r="80" fill="#333"/>'
+      +'<circle cx="100" cy="100" r="70" fill="#444"/>'
+      +'<circle cx="100" cy="100" r="60" fill="#4A90C4"/>'
+      +'<circle cx="100" cy="100" r="52" fill="#3A80B4"/>'
+      +'<circle cx="100" cy="100" r="44" fill="#C04040"/>'
+      +'<circle cx="100" cy="100" r="34" fill="#AA3333"/>'
+      +'<circle cx="100" cy="100" r="24" fill="#DDBB00"/>'
+      +'<circle cx="100" cy="100" r="14" fill="#CCAA00"/>'
+      +'<circle cx="100" cy="100" r="6"  fill="#BBAA00"/>'
+    : '<circle cx="100" cy="100" r="96" fill="#4A90C4"/>'
+      +'<circle cx="100" cy="100" r="72" fill="#C04040"/>'
+      +'<circle cx="100" cy="100" r="52" fill="#AA3333"/>'
+      +'<circle cx="100" cy="100" r="34" fill="#DDBB00"/>'
+      +'<circle cx="100" cy="100" r="20" fill="#CCAA00"/>'
+      +'<circle cx="100" cy="100" r="8"  fill="#BBAA00"/>';
 
   var legend=targets.map(function(t,i){
     return '<span style="font-size:10px;color:#6b7280;display:flex;align-items:center;gap:4px">'
@@ -405,14 +466,9 @@ function generateUnifiedSVG(targets) {
   return '<div style="display:flex;justify-content:center;margin:8px 0">'
     +'<svg width="190" height="190" viewBox="-15 -15 230 230">'
     +'<rect x="-15" y="-15" width="230" height="230" fill="#13161b" rx="8"/>'
-    +'<circle cx="100" cy="100" r="96" fill="#4A90C4"/>'
-    +'<circle cx="100" cy="100" r="72" fill="#C04040"/>'
-    +'<circle cx="100" cy="100" r="52" fill="#AA3333"/>'
-    +'<circle cx="100" cy="100" r="34" fill="#DDBB00"/>'
-    +'<circle cx="100" cy="100" r="20" fill="#CCAA00"/>'
-    +'<circle cx="100" cy="100" r="8"  fill="#BBAA00"/>'
-    +'<line x1="86" y1="100" x2="114" y2="100" stroke="#444" stroke-width="0.8"/>'
-    +'<line x1="100" y1="86" x2="100" y2="114" stroke="#444" stroke-width="0.8"/>'
+    +rings
+    +'<line x1="86" y1="100" x2="114" y2="100" stroke="#555" stroke-width="0.8"/>'
+    +'<line x1="100" y1="86" x2="100" y2="114" stroke="#555" stroke-width="0.8"/>'
     +allHoles
     +'<ellipse cx="'+ucx+'" cy="'+ucy+'" rx="44" ry="35" fill="#000" fill-opacity="0.06" stroke="#111" stroke-width="2" stroke-dasharray="6,4"/>'
     +'<circle cx="'+ucx+'" cy="'+ucy+'" r="7" fill="none" stroke="#111" stroke-width="1.4"/>'
