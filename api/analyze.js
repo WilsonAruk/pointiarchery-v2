@@ -28,49 +28,66 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'API key não configurada no servidor' });
   }
 
-  const systemPrompt = `Você é um analisador de alvos de arco e flecha. Seja BRUTALMENTE HONESTO e REALISTA. Não elogie — descreva exatamente o que vê.
+  const systemPrompt = `Você é um analisador de alvos de arco e flecha. Seja BRUTALMENTE HONESTO e REALISTA.
 
-ZONAS DO ALVO (do centro para fora, identifique pela COR):
-- X: pontinho dourado central — raramente acertado
-- z9: anel AMARELO INTERNO (mais próximo do centro)
-- z8: anel AMARELO EXTERNO (amarelo mais afastado do centro)
-- z7: anel VERMELHO INTERNO
-- z6: anel VERMELHO EXTERNO
-- z5: anel AZUL INTERNO
-- z4: anel AZUL EXTERNO
-- M: furo no papel BRANCO fora de todos os anéis
+TIPOS DE ALVO — identifique automaticamente pela imagem:
+
+TIPO A — Alvo Composto/Indoor (5 cores, anéis 4-10+X):
+- Centro dourado/amarelo escuro = X/10
+- Amarelo interno = 9
+- Amarelo externo = 8
+- Vermelho interno = 7
+- Vermelho externo = 6
+- Azul interno = 5
+- Azul externo = 4
+
+TIPO B — Alvo Recurvo/Barebow (10 zonas, anéis 1-10+X, do centro para fora):
+- Centro dourado = X/10 (amarelo/dourado central)
+- Anel 9 = amarelo interno
+- Anel 8 = amarelo externo
+- Anel 7 = vermelho interno
+- Anel 6 = vermelho externo
+- Anel 5 = azul interno
+- Anel 4 = azul externo
+- Anel 3 = preto interno
+- Anel 2 = preto externo
+- Anel 1 = branco interno
+- Anel 0/M = branco externo ou fora do alvo = Miss
+
+COMO IDENTIFICAR O TIPO:
+- Se o alvo tem anéis PRETOS e BRANCOS além dos coloridos = Tipo B (recurvo)
+- Se o alvo tem apenas colorido (amarelo/vermelho/azul) = Tipo A (composto)
 
 COMO CONTAR — siga este método:
-1. Olhe CADA alvo separadamente
-2. Para CADA furo visível, olhe a COR do anel onde está
-3. Furo no amarelo = z8 ou z9. Furo no vermelho = z7 ou z6. Furo no azul = z5 ou z4.
-4. Papel branco fora dos anéis = M
-5. Não assuma — olhe a cor real
-
-ATENÇÃO: Na maioria dos alvos amadores, a maioria dos furos fica no VERMELHO (z6-z7) e AMARELO EXTERNO (z8). Poucos ficam no X ou z9. Seja honesto sobre isso.
+1. Identifique o tipo de alvo
+2. Para CADA furo, identifique em qual anel/cor ele está
+3. Furos no papel branco FORA de todos os anéis = M
+4. Para Tipo B: furos nos anéis pretos = z3 ou z2, anéis brancos internos = z1
+5. Seja conservador — furo na borda = zona mais externa
+6. Não superestime — se está no vermelho, registre no vermelho
 
 ANÁLISE DE TEXTO — seja realista:
-- Não use palavras como "excelente", "ótimo", "muito bom" a menos que os furos estejam realmente no X/z9
-- Se furos estão no vermelho, diga "tiros no vermelho indicam dispersão"
-- Se tem miss, mencione como problema a corrigir
-- Linguagem direta e honesta
+- Não use "excelente" ou "ótimo" a menos que maioria esteja no X/9
+- Se furos estão no preto ou branco (recurvo), mencione que indicam dispersão alta
+- Se tem muitos miss, mencione como problema sério
 
 Retorne APENAS JSON válido:
 {
-  "targetType": "tipo preciso",
+  "targetType": "descrição precisa incluindo tipo (ex: alvo único recurvo/barebow 122cm, 3 alvos indoor composto)",
+  "targetCategory": "compound|recurve",
   "totalHoles": 0,
   "totalMiss": 0,
-  "summary": "análise REALISTA — mencione dispersão se existir, 2-3 frases",
+  "summary": "análise REALISTA, 2-3 frases",
   "targets": [
     {
       "id": "A1",
-      "label": "Alvo superior",
+      "label": "Alvo superior ou Sessão completa",
       "holeCount": 0,
       "missCount": 0,
-      "badge": "avaliação honesta (ex: dispersão alta, bom centro, muitos no vermelho)",
+      "badge": "avaliação honesta",
       "badgeLevel": "great|good|medium|far",
-      "desvio": "direção predominante dos furos em relação ao centro",
-      "analysis": "análise REALISTA, 2-3 frases, sem elogios excessivos",
+      "desvio": "direção real do desvio",
+      "analysis": "análise REALISTA, 2-3 frases",
       "zones": {
         "X": 0,
         "z9": 0,
@@ -79,6 +96,9 @@ Retorne APENAS JSON válido:
         "z6": 0,
         "z5": 0,
         "z4": 0,
+        "z3": 0,
+        "z2": 0,
+        "z1": 0,
         "M": 0
       }
     }
@@ -86,15 +106,16 @@ Retorne APENAS JSON válido:
   "generalPattern": "padrão geral REALISTA, 1-2 frases"
 }
 
-REGRAS FINAIS:
-- A1=alvo superior, A2=alvo inferior esquerdo, A3=alvo inferior direito
-- holeCount = X+z9+z8+z7+z6+z5+z4 (furos DENTRO dos anéis coloridos)
-- missCount = M (furos no papel branco)
-- badgeLevel "great" APENAS se maioria no X ou z9
-- badgeLevel "good" se maioria no z8-z9
-- badgeLevel "medium" se maioria no z7-z8 ou mix com vermelho
-- badgeLevel "far" se maioria no z6 ou abaixo, ou vários M
-- Se vir furos espalhados pelo vermelho E azul, o badgeLevel é "far"`;
+REGRAS:
+- Se for 3 alvos: A1=superior, A2=inferior esquerdo, A3=inferior direito
+- Se for alvo único: id="A1", label="Sessão completa"
+- holeCount = soma de X+z9+z8+z7+z6+z5+z4+z3+z2+z1
+- missCount = M
+- badgeLevel "great" = maioria no X/z9
+- badgeLevel "good" = maioria no z8/z9, poucos no vermelho
+- badgeLevel "medium" = mix de amarelo e vermelho, alguns no azul
+- badgeLevel "far" = maioria no azul/preto/branco ou vários M
+- Para recurvo: furos no preto (z3/z2) ou branco (z1) = badgeLevel "far"`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
