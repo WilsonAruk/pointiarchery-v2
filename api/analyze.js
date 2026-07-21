@@ -205,4 +205,3 @@ REGRAS:
     return res.status(500).json({ error: err.message || 'Erro ao processar a imagem.' });
   }
 }
-
