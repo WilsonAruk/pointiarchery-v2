@@ -1,5 +1,12 @@
 {
-  "name": "pointiarchery",
+  "name": "pointiarchery-v2",
   "version": "1.0.0",
-  "private": true
+  "description": "PointIArchery - Análise de alvos de arco e flecha",
+  "main": "index.js",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
 }
