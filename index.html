@@ -306,17 +306,18 @@ function renderHistory(){
   el.innerHTML=hist.map(function(h){
     var d=new Date(h.date);
     var ds=d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-    var s=h.estimatedScore||0;
     var missStr=h.totalMiss>0?' &nbsp;·&nbsp; <span style="color:var(--red)">'+h.totalMiss+' miss</span>':'';
     var summaryText=(h.summary||'');
+    var typeLabel=(h.targetType||'').replace('Tipo A - Composto Indoor','Composto').replace('Tipo B - Recurvo/Barebow','Recurvo').replace('Tipo A - ','').replace('Tipo B - ','');
     return '<div class="history-card" onclick="loadHistoryItem('+h.id+')">'
       +'<button class="history-delete" onclick="event.stopPropagation();deleteFromHistory('+h.id+')">✕</button>'
       +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:8px">'
       +'<span class="history-date">'+ds+(h.distance?' &nbsp;·&nbsp; '+h.distance:'')+'</span>'
-      +'<span class="history-type" style="margin-right:28px;flex-shrink:0">'+(h.targetType||'').replace('Tipo A - ','').replace('Tipo B - ','')+'</span></div>'
+      +'<span class="history-type" style="margin-right:28px;flex-shrink:0">'+typeLabel+'</span></div>'
       +'<div style="display:flex;align-items:center;gap:14px;margin-bottom:6px">'
-      +'<div><span class="history-score">'+s+'</span><span style="font-size:15px;color:#9ca3af;font-weight:500"> pts</span></div>'
-      +'<div class="history-holes">'+h.totalHoles+' tiros'+missStr+'</div></div>'
+      +'<div><span class="history-score">'+h.totalHoles+'</span><span style="font-size:15px;color:#9ca3af;font-weight:500"> tiros</span></div>'
+      +(missStr?'<div class="history-holes">'+missStr+'</div>':'')
+      +'</div>'
       +(summaryText?'<div class="history-summary">'+summaryText+'</div>':'')
       +'</div>';
   }).join('');
@@ -339,26 +340,26 @@ function renderEvolution(){
   var hist=getHistory();var el=$('evolutionContent');
   if(hist.length<2){el.innerHTML='<div class="history-empty"><p style="font-size:14px;margin-bottom:6px">Precisa de pelo menos 2 sessões</p><p style="font-size:12px">Analise mais alvos para ver evolução</p></div>';return;}
   var rev=hist.slice().reverse();
-  var scores=rev.map(function(h){return h.estimatedScore||0;});
+  var holesArr=rev.map(function(h){return h.totalHoles||0;});
   var missArr=rev.map(function(h){return h.totalMiss||0;});
   var labels=rev.map(function(h,i){return 'S'+(i+1);});
-  var avg=Math.round(scores.reduce(function(a,b){return a+b;},0)/scores.length);
-  var best=Math.max.apply(null,scores);
-  var last=scores[scores.length-1];
-  var trend=scores.length>=2?scores[scores.length-1]-scores[scores.length-2]:0;
-  var trendStr=trend>0?'+'+trend+' pts':trend<0?trend+' pts':'igual';
+  var avgHoles=Math.round(holesArr.reduce(function(a,b){return a+b;},0)/holesArr.length);
+  var bestHoles=Math.max.apply(null,holesArr);
+  var lastHoles=holesArr[holesArr.length-1];
+  var trend=holesArr.length>=2?holesArr[holesArr.length-1]-holesArr[holesArr.length-2]:0;
+  var trendStr=trend>0?'+'+trend+' tiros':trend<0?trend+' tiros':'igual';
   var trendColor=trend>0?'var(--green)':trend<0?'var(--red)':'var(--muted)';
   var pats=analyzePatterns(hist);
   el.innerHTML='<div class="stats-grid">'
-    +'<div class="stat-card"><div class="stat-val">'+last+'</div><div class="stat-label">Última sessão</div><div style="font-size:13px;font-weight:600;color:'+trendColor+';margin-top:5px">'+trendStr+' vs anterior</div></div>'
-    +'<div class="stat-card"><div class="stat-val">'+avg+'</div><div class="stat-label">Média geral</div></div>'
-    +'<div class="stat-card"><div class="stat-val">'+best+'</div><div class="stat-label">Melhor sessão</div></div>'
+    +'<div class="stat-card"><div class="stat-val">'+lastHoles+'</div><div class="stat-label">Última sessão</div><div style="font-size:13px;font-weight:600;color:'+trendColor+';margin-top:5px">'+trendStr+' vs anterior</div></div>'
+    +'<div class="stat-card"><div class="stat-val">'+avgHoles+'</div><div class="stat-label">Média tiros/sessão</div></div>'
+    +'<div class="stat-card"><div class="stat-val">'+bestHoles+'</div><div class="stat-label">Maior volume</div></div>'
     +'<div class="stat-card"><div class="stat-val">'+hist.length+'</div><div class="stat-label">Sessões</div></div>'
     +'</div>'
-    +'<div class="chart-wrap"><div class="chart-title">Pontuação por sessão</div><canvas id="scoreChart" height="180"></canvas></div>'
+    +'<div class="chart-wrap"><div class="chart-title">Tiros no alvo por sessão</div><canvas id="scoreChart" height="180"></canvas></div>'
     +'<div class="chart-wrap"><div class="chart-title">Miss (M) por sessão</div><canvas id="missChart" height="140"></canvas></div>'
     +pats.map(function(p){return '<div class="pattern-insight"><div class="pattern-insight-title">'+p.title+'</div><div class="pattern-insight-text">'+p.text+'</div></div>';}).join('');
-  setTimeout(function(){drawLineChart('scoreChart',labels,scores,'#E8B84B');drawBarChart('missChart',labels,missArr,'#f87171');},80);
+  setTimeout(function(){drawLineChart('scoreChart',labels,holesArr,'#E8B84B');drawBarChart('missChart',labels,missArr,'#f87171');},80);
 }
 
 function drawLineChart(id,labels,data,color){
@@ -416,8 +417,10 @@ function analyzePatterns(hist){
   if(esq/total>0.4)patterns.push({title:'Desvio recorrente para a esquerda',text:'Em '+Math.round(esq/total*100)+'% das séries os tiros desviam para a esquerda. Pode ser mira desajustada ou torção de punho.'});
   if(dir/total>0.4)patterns.push({title:'Desvio recorrente para a direita',text:'Em '+Math.round(dir/total*100)+'% das séries os tiros desviam para a direita. Verifique o ajuste lateral da mira.'});
   if(bx/total>0.4)patterns.push({title:'Tendência consistente para baixo',text:'Em '+Math.round(bx/total*100)+'% das séries os tiros caem abaixo do centro. Verifique ponto de ancoragem com seu técnico.'});
-  var sc=hist.slice(0,5).map(function(h){return h.estimatedScore||0;});
-  if(sc.length>=3&&sc[0]>sc[sc.length-1])patterns.push({title:'Pontuação em crescimento',text:'Suas últimas sessões mostram melhora progressiva. Continue com a consistência de treino!'});
+  var holes5=hist.slice(0,5).map(function(h){return h.totalHoles||0;});
+  if(holes5.length>=3){var growing=holes5[0]>holes5[holes5.length-1];if(growing)patterns.push({title:'Volume de tiros crescendo',text:'Você está aumentando o número de tiros por sessão. Bom sinal de comprometimento com o treino!'});}
+  var avgH=holes5.length?Math.round(holes5.reduce(function(a,b){return a+b;},0)/holes5.length):0;
+  if(avgH>0&&avgH<15)patterns.push({title:'Volume por sessão baixo',text:'Média de '+avgH+' tiros por sessão. Aumentar o volume ajuda a consolidar a técnica.'});
   var tm=hist.slice(0,5).reduce(function(s,h){return s+(h.totalMiss||0);},0);
   if(tm>hist.slice(0,5).length*2)patterns.push({title:'Muitos erros fora do alvo (M)',text:'Média de '+Math.round(tm/Math.min(5,hist.length))+' miss por sessão. Foco em controle de respiração e estabilidade.'});
   return patterns;
@@ -432,11 +435,11 @@ function renderCompare(){
       var d=new Date(item.date);
       return '<div class="compare-slot filled">'
         +'<strong style="font-family:Barlow Condensed,sans-serif;font-size:18px;color:var(--text)">Sessão '+(i+1)+'</strong>'
-        +'<div style="font-size:13px;color:#9ca3af;margin-top:5px">'+d.toLocaleDateString('pt-BR')+(item.distance?' · '+item.distance:'')+' · <b style="color:var(--accent)">'+(item.estimatedScore||0)+' pts</b></div>'
+        +'<div style="font-size:13px;color:#9ca3af;margin-top:5px">'+d.toLocaleDateString('pt-BR')+(item.distance?' · '+item.distance:'')+' · <b style="color:var(--accent)">'+(item.totalHoles||0)+' tiros</b></div>'
         +'<button onclick="compareSlots['+i+']=null;renderCompare()" style="margin-top:10px;background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:5px;cursor:pointer;font-size:13px;font-weight:600">Trocar</button>'
         +'</div>';
     }
-    var options=hist.slice(0,20).map(function(h){var d2=new Date(h.date);return '<option value="'+h.id+'">'+d2.toLocaleDateString('pt-BR')+' — '+(h.estimatedScore||0)+' pts'+(h.distance?' — '+h.distance:'')+'</option>';}).join('');
+    var options=hist.slice(0,20).map(function(h){var d2=new Date(h.date);return '<option value="'+h.id+'">'+d2.toLocaleDateString('pt-BR')+' — '+(h.totalHoles||0)+' tiros'+(h.distance?' — '+h.distance:'')+'</option>';}).join('');
     return '<div class="compare-slot">'
       +'<div style="font-size:14px;color:#9ca3af;margin-bottom:10px">Selecione a sessão '+(i+1)+'</div>'
       +'<select onchange="compareSlots['+i+']=+this.value;renderCompare()" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:6px;font-size:14px">'
@@ -447,17 +450,19 @@ function renderCompare(){
   if(compareSlots[0]&&compareSlots[1]){
     var a=hist.find(function(h){return h.id===compareSlots[0];}),b=hist.find(function(h){return h.id===compareSlots[1];});
     if(a&&b){
-      var sa=a.estimatedScore||0,sb=b.estimatedScore||0,ma=a.totalMiss||0,mb=b.totalMiss||0,ha=a.totalHoles||0,hb=b.totalHoles||0;
+      var ma=a.totalMiss||0,mb=b.totalMiss||0,ha=a.totalHoles||0,hb=b.totalHoles||0;
+      // agrupamento: zona com mais furos em cada sessão
+      function topZone(sess){var best='',bestN=0;(sess.targets||[]).forEach(function(t){var z=t.zones||{};['X','z9','z8','z7','z6','z5','z4','z3','z2','z1'].forEach(function(k){if((z[k]||0)>bestN){bestN=z[k];best=k.replace('z','');}});});return best||'—';}
+      var za=topZone(a),zb=topZone(b);
       function cls(va,vb,lb){if(va===vb)return 'same';return(lb?(va<vb):(va>vb))?'better':'worse';}
-      function metric(lbl,va,vb,c){return '<div class="compare-metric"><div class="compare-metric-label">'+lbl+'</div><div class="compare-metric-vals"><span class="compare-val '+c+'">'+va+'</span><span style="color:var(--muted);font-size:11px">vs</span><span class="compare-val '+(c==='better'?'worse':c==='worse'?'better':'same')+'">'+vb+'</span></div></div>';}
+      function metric(lbl,va,vb,c){return '<div class="compare-metric"><div class="compare-metric-label">'+lbl+'</div><div class="compare-metric-vals"><span class="compare-val '+c+'">'+va+'</span><span style="color:var(--muted);font-size:14px">vs</span><span class="compare-val '+(c==='better'?'worse':c==='worse'?'better':'same')+'">'+vb+'</span></div></div>';}
+      var concl=(ha>hb?'Sessão 1 teve mais tiros (+<b style="color:var(--accent)">'+(ha-hb)+'</b>).':ha<hb?'Sessão 2 teve mais tiros (+<b style="color:var(--accent)">'+(hb-ha)+'</b>).':'Volume igual nas duas sessões.')
+        +(ma<mb?' Menos miss na sessão 1.':ma>mb?' Menos miss na sessão 2.':'');
       comparison='<div class="compare-grid">'
-        +metric('Pontuação',sa,sb,cls(sa,sb,false))+metric('No alvo',ha,hb,cls(ha,hb,false))
-        +metric('Miss (M)',ma,mb,cls(ma,mb,true))+metric('Pts/tiro',ha>0?(sa/ha).toFixed(1):0,hb>0?(sb/hb).toFixed(1):0,cls(ha>0?sa/ha:0,hb>0?sb/hb:0,false))
+        +metric('Tiros no alvo',ha,hb,cls(ha,hb,false))+metric('Miss (M)',ma,mb,cls(ma,mb,true))
+        +metric('Zona destaque',za,zb,'same')+metric('Total analisado',ha+ma,hb+mb,'same')
         +'</div>'
-        +'<div class="section-card"><div class="section-label" style="font-size:12px;letter-spacing:1.5px">CONCLUSÃO</div><div class="section-text" style="font-size:15px;color:#d1d8e0;font-weight:500">'
-        +(sa>sb?'Sessão 1 foi melhor com +<b style="color:var(--accent)">'+(sa-sb)+'</b> pontos.':sa<sb?'Sessão 2 foi melhor com +<b style="color:var(--accent)">'+(sb-sa)+'</b> pontos.':'Pontuação equivalente nas duas sessões.')
-        +(ma<mb?' Menos miss na sessão 1.':ma>mb?' Menos miss na sessão 2.':'')
-        +'</div></div>'
+        +'<div class="section-card"><div class="section-label" style="font-size:12px;letter-spacing:1.5px">CONCLUSÃO</div><div class="section-text" style="font-size:15px;color:#d1d8e0;font-weight:500">'+concl+'</div></div>'
         +'<button class="btn-compare-clear" onclick="compareSlots=[null,null];renderCompare()">Limpar comparação</button>';
     }
   }
@@ -506,9 +511,9 @@ function generateUnifiedSVG(targets){
 }
 
 function renderResults(a){
-  hide($('loadingWrap'));var score=estimateScore(a);var html='';
+  hide($('loadingWrap'));var html='';
   var missStr=a.totalMiss>0?' · <span style="color:var(--red)">'+a.totalMiss+' M</span>':'';
-  html+='<div class="score-card fade-in"><div class="score-row"><span class="score-label">Pontuação estimada</span><span class="score-val">'+score+' pts</span></div><div class="score-detail">'+a.totalHoles+' tiros no alvo'+missStr+(a.distance?' · '+a.distance:'')+(a.targetType?' · '+a.targetType.substring(0,35):'')+'</div></div>';
+  html+='<div class="score-card fade-in"><div class="score-row"><span class="score-label">Tiros analisados</span><span class="score-val" style="font-size:36px">'+a.totalHoles+'<span style="font-size:16px;color:#9ca3af;font-weight:500"> tiros</span></span></div><div class="score-detail">'+((a.totalMiss||0)>0?a.totalMiss+' miss · ':'')+((a.distance)?a.distance+' · ':'')+( a.targetType?a.targetType.substring(0,35):'')+'</div></div>';
   html+='<div class="section-card fade-in"><div class="section-label">'+(a.targetType||'Sessão')+'</div><div class="section-text">'+a.summary+'</div></div>';
   if(a.targets&&a.targets.length>0){
     var totalMiss2=a.totalMiss||a.targets.reduce(function(s,t){return s+(t.missCount||0);},0);
