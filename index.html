@@ -8,7 +8,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0}html,body{overflow-x:hidden;width:100%}
 :root{--bg:#0d0f13;--surface:#1c2130;--surface2:#252c3a;--border:#3d4758;--accent:#F2C84B;--accent2:#60a5fa;--text:#f4f6f9;--muted:#bbc8d8;--green:#4ade80;--red:#f87171;--orange:#fb923c}
 body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;display:flex;flex-direction:column}
 header{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;background:var(--surface);position:sticky;top:0;z-index:10}
@@ -23,7 +23,7 @@ header{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;alig
 .nav-tab:hover:not(.active){color:#fff}
 .tab-content{display:none}
 .tab-content.active{display:block}
-main{flex:1;padding:20px;max-width:480px;margin:0 auto;width:100%}
+main{flex:1;padding:20px;max-width:480px;margin:0 auto;width:100%;box-sizing:border-box;overflow-x:hidden}
 .upload-zone{border:2px dashed var(--border);border-radius:12px;padding:32px 24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface)}
 .upload-zone:hover{border-color:var(--accent);background:rgba(232,184,75,0.04)}
 .upload-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;margin-bottom:8px}
@@ -117,6 +117,21 @@ main{flex:1;padding:20px;max-width:480px;margin:0 auto;width:100%}
 footer{padding:12px 24px;text-align:center;border-top:1px solid var(--border);font-size:13px;color:#bbc8d8}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .fade-in{animation:fadeIn .3s ease forwards}
+@media(max-width:360px){
+  main{padding:14px}
+  .compare-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .compare-metric-vals{flex-direction:column;gap:2px}
+  .compare-metric-vals .compare-val{font-size:20px}
+  .nav-tab{padding:10px 12px;font-size:13px}
+  .upload-zone{padding:24px 16px}
+  .distance-options{gap:6px}
+  .dist-btn{font-size:13px;padding:5px 10px}
+}
+@media(max-width:400px){
+  .compare-val{font-size:22px}
+  .compare-metric{padding:10px 8px}
+}
 </style>
 </head>
 <body>
@@ -478,12 +493,13 @@ function renderCompare(){
         +(ma<mb?' Menos miss na sessão 1.':ma>mb?' Menos miss na sessão 2.':'')
         +(ga.level!==gb.level?' Agrupamento melhor na '+(grpOrder.indexOf(ga.level)<grpOrder.indexOf(gb.level)?'sessão 1':'sessão 2')+'.'
           :(ga.level==='great'?' Agrupamento excelente nas duas!':' Agrupamento similar nas duas sessões.'));
-      function groupMetric(lbl,va,vca,vb,vcb){
+      function groupMetric(lbl,va,vca,vb,vcb,small){
+        var fs=small?'font-size:13px;font-weight:600;line-height:1.3':'';
         return '<div class="compare-metric"><div class="compare-metric-label">'+lbl+'</div>'
           +'<div class="compare-metric-vals">'
-          +'<span class="compare-val" style="color:'+vca+'">'+va+'</span>'
-          +'<span style="color:var(--muted);font-size:14px">vs</span>'
-          +'<span class="compare-val" style="color:'+vcb+'">'+vb+'</span>'
+          +'<span class="compare-val" style="color:'+vca+';'+(small?'font-size:13px;font-weight:600;line-height:1.3;text-transform:capitalize':'')+'">'+va+'</span>'
+          +'<span style="color:var(--muted);font-size:12px">vs</span>'
+          +'<span class="compare-val" style="color:'+vcb+';'+(small?'font-size:13px;font-weight:600;line-height:1.3;text-transform:capitalize':'')+'">'+vb+'</span>'
           +'</div></div>';
       }
       comparison='<div class="compare-grid">'
@@ -492,8 +508,8 @@ function renderCompare(){
         +'</div>'
         +'<div class="section-card" style="margin-bottom:12px"><div class="section-label" style="font-size:12px;letter-spacing:1.5px;color:#dde6f2">AGRUPAMENTO</div>'
         +'<div class="compare-grid" style="margin-top:8px">'
-        +groupMetric('Qualidade do grupo',ga.label,ga.color,gb.label,gb.color)
-        +groupMetric('Desvio predominante',ga.desvio||'—','#eef2f7',gb.desvio||'—','#eef2f7')
+        +groupMetric('Qualidade do grupo',ga.label,ga.color,gb.label,gb.color,false)
+        +groupMetric('Desvio predominante',ga.desvio||'—','#eef2f7',gb.desvio||'—','#eef2f7',true)
         +'</div></div>'
         +'<div class="section-card"><div class="section-label" style="font-size:12px;letter-spacing:1.5px;color:#dde6f2">CONCLUSÃO</div><div class="section-text" style="font-size:15px;color:#f0f4fa;font-weight:500">'+concl+'</div></div>'
         +'<button class="btn-compare-clear" onclick="compareSlots=[null,null];renderCompare()">Limpar comparação</button>';
