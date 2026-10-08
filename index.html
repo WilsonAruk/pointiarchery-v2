@@ -9,16 +9,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0a0c0f;--surface:#13161b;--surface2:#1c2028;--border:#2a2f3a;--accent:#E8B84B;--accent2:#4A90C4;--text:#f0f2f5;--muted:#6b7280;--green:#4ade80;--red:#f87171;--orange:#fb923c}
+:root{--bg:#0d0f13;--surface:#1c2130;--surface2:#252c3a;--border:#3d4758;--accent:#F2C84B;--accent2:#60a5fa;--text:#f4f6f9;--muted:#8f9baf;--green:#4ade80;--red:#f87171;--orange:#fb923c}
 body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;display:flex;flex-direction:column}
 header{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;background:var(--surface);position:sticky;top:0;z-index:10}
 .logo-img{height:44px;width:auto;object-fit:contain;flex-shrink:0}
 .header-text{display:flex;flex-direction:column;gap:1px}
 .header-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:19px;color:#ffffff}
-.header-sub{font-size:12px;color:#9ca3af}
-.badge-tag{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#c9d1dc;border:1px solid #3a4050;padding:4px 10px;border-radius:3px;margin-left:auto}
+.header-sub{font-size:12px;color:#cdd6e4}
+.badge-tag{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#e4eaf3;border:1px solid #3a4050;padding:4px 10px;border-radius:3px;margin-left:auto}
 .nav-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);overflow-x:auto;gap:2px;padding:0 4px}
-.nav-tab{padding:12px 18px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#c9d1dc;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s}
+.nav-tab{padding:12px 18px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#e4eaf3;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s}
 .nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 .nav-tab:hover:not(.active){color:#fff}
 .tab-content{display:none}
@@ -47,13 +47,13 @@ main{flex:1;padding:20px;max-width:480px;margin:0 auto;width:100%}
 @keyframes spin{to{transform:rotate(360deg)}}
 .results-wrap{display:none}
 .result-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
-.result-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;line-height:1.2}
+.result-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#cdd6e4;line-height:1.2}
 .result-new{margin-left:auto;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;padding:7px 14px;border-radius:5px;border:1px solid var(--border);cursor:pointer;white-space:nowrap}
 .result-new:hover{border-color:var(--accent);color:var(--accent)}
 .section-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px}
-.section-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-.section-text{font-size:14px;color:#c9d1dc;line-height:1.7}
-.targets-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin:14px 0 8px}
+.section-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#8f9baf;margin-bottom:8px}
+.section-text{font-size:14px;color:#e4eaf3;line-height:1.7}
+.targets-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#a0aabb;margin:16px 0 10px}
 .target-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px}
 .target-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px}
 .target-card-name{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;flex-shrink:0}
@@ -66,7 +66,7 @@ main{flex:1;padding:20px;max-width:480px;margin:0 auto;width:100%}
 .target-card-info{flex:1}
 .desvio-tag{font-size:10px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:4px}
 .desvio-tag::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--border)}
-.target-card-text{font-size:13px;color:#b0bac8;line-height:1.7}
+.target-card-text{font-size:13px;color:#cdd6e4;line-height:1.7}
 .score-card{background:var(--surface2);border:1px solid rgba(232,184,75,0.3);border-radius:10px;padding:14px 16px;margin-bottom:12px}
 .score-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .score-label{font-size:11px;color:var(--muted);font-weight:500}
@@ -75,7 +75,7 @@ main{flex:1;padding:20px;max-width:480px;margin:0 auto;width:100%}
 .pattern-card{background:var(--surface);border:1px solid rgba(232,184,75,0.2);border-radius:10px;padding:14px 16px;margin-bottom:12px}
 .coach-card{background:rgba(74,144,196,0.06);border:1px solid rgba(74,144,196,0.2);border-radius:10px;padding:14px 16px;margin-bottom:12px}
 .coach-title{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--accent2);margin-bottom:5px}
-.coach-text{font-size:14px;color:rgba(180,205,230,0.9);line-height:1.7}
+.coach-text{font-size:14px;color:#d8e6f0;line-height:1.7}
 .dev-card{background:rgba(232,184,75,0.06);border:1px solid rgba(232,184,75,0.2);border-radius:10px;padding:12px 14px;margin-bottom:12px}
 .btn-new-bottom{width:100%;background:var(--accent);color:#0a0c0f;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;padding:14px;border-radius:8px;border:none;cursor:pointer;margin-top:4px}
 .share-row{display:flex;gap:8px;margin-top:12px}
@@ -87,11 +87,11 @@ main{flex:1;padding:20px;max-width:480px;margin:0 auto;width:100%}
 .history-empty{text-align:center;padding:48px 24px;color:var(--muted)}
 .history-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:12px;cursor:pointer;transition:border-color .15s;position:relative}
 .history-card:hover{border-color:var(--accent2)}
-.history-date{font-size:13px;color:#9ca3af}
+.history-date{font-size:13px;color:#cdd6e4}
 .history-type{font-size:13px;font-weight:700;color:var(--accent2)}
 .history-score{font-family:'Barlow Condensed',sans-serif;font-size:38px;font-weight:900;color:var(--accent);line-height:1}
-.history-holes{font-size:14px;color:#c9d1dc;font-weight:500;margin-top:2px}
-.history-summary{font-size:13px;color:#b0bac8;line-height:1.6;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.history-holes{font-size:14px;color:#e4eaf3;font-weight:500;margin-top:2px}
+.history-summary{font-size:13px;color:#cdd6e4;line-height:1.6;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .history-delete{background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;font-size:16px;position:absolute;top:12px;right:12px}
 .history-delete:hover{color:var(--red)}
 .chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px}
@@ -99,15 +99,15 @@ main{flex:1;padding:20px;max-width:480px;margin:0 auto;width:100%}
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-align:center}
 .stat-val{font-family:'Barlow Condensed',sans-serif;font-size:38px;font-weight:900;color:var(--accent);line-height:1}
-.stat-label{font-size:12px;color:#9ca3af;letter-spacing:.5px;text-transform:uppercase;margin-top:4px;font-weight:500}
+.stat-label{font-size:12px;color:#cdd6e4;letter-spacing:.5px;text-transform:uppercase;margin-top:4px;font-weight:500}
 .pattern-insight{background:var(--surface);border:1px solid rgba(232,184,75,0.25);border-radius:12px;padding:16px 18px;margin-bottom:12px}
 .pattern-insight-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--accent);margin-bottom:6px}
-.pattern-insight-text{font-size:14px;color:#b0bac8;line-height:1.7}
+.pattern-insight-text{font-size:14px;color:#cdd6e4;line-height:1.7}
 .compare-slot{background:var(--surface);border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;margin-bottom:10px;transition:border-color .15s}
 .compare-slot.filled{border-style:solid;border-color:var(--border)}
 .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .compare-metric{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 12px;text-align:center}
-.compare-metric-label{font-size:12px;color:#9ca3af;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;font-weight:500}
+.compare-metric-label{font-size:12px;color:#cdd6e4;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;font-weight:500}
 .compare-metric-vals{display:flex;justify-content:space-around;align-items:center;gap:6px}
 .compare-val{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900}
 .compare-val.better{color:var(--green)}
@@ -190,7 +190,7 @@ footer{padding:12px 24px;text-align:center;border-top:1px solid var(--border);fo
     </div>
     <div class="results-wrap" id="resultsWrap">
       <div class="result-header">
-        <div class="result-title">Análise de Dispersão<br/>de Tiro (chuveirinho)</div>
+        <div class="result-title">Resultado</div>
         <button class="result-new" onclick="reset()">+ Nova</button>
       </div>
       <div id="resultsContent"></div>
@@ -315,7 +315,7 @@ function renderHistory(){
       +'<span class="history-date">'+ds+(h.distance?' &nbsp;·&nbsp; '+h.distance:'')+'</span>'
       +'<span class="history-type" style="margin-right:28px;flex-shrink:0">'+typeLabel+'</span></div>'
       +'<div style="display:flex;align-items:center;gap:14px;margin-bottom:6px">'
-      +'<div><span class="history-score">'+h.totalHoles+'</span><span style="font-size:15px;color:#9ca3af;font-weight:500"> tiros</span></div>'
+      +'<div><span class="history-score">'+h.totalHoles+'</span><span style="font-size:15px;color:#cdd6e4;font-weight:500"> tiros</span></div>'
       +(missStr?'<div class="history-holes">'+missStr+'</div>':'')
       +'</div>'
       +(summaryText?'<div class="history-summary">'+summaryText+'</div>':'')
@@ -371,7 +371,7 @@ function drawLineChart(id,labels,data,color){
   var p={t:20,r:20,b:36,l:48};var cw=W-p.l-p.r,ch=H-p.t-p.b;
   var mn=Math.min.apply(null,data)*0.92,mx=Math.max.apply(null,data)*1.08;if(mn===mx){mn-=10;mx+=10;}
   ctx.clearRect(0,0,W,H);
-  for(var i=0;i<5;i++){var yy=p.t+ch*(i/4);ctx.strokeStyle='rgba(42,47,58,0.9)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.l,yy);ctx.lineTo(p.l+cw,yy);ctx.stroke();ctx.fillStyle='#9ca3af';ctx.font='bold 11px Barlow,sans-serif';ctx.textAlign='right';ctx.fillText(Math.round(mx-(mx-mn)*i/4),p.l-6,yy+4);}
+  for(var i=0;i<5;i++){var yy=p.t+ch*(i/4);ctx.strokeStyle='rgba(42,47,58,0.9)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.l,yy);ctx.lineTo(p.l+cw,yy);ctx.stroke();ctx.fillStyle='#bac4d2';ctx.font='bold 11px Barlow,sans-serif';ctx.textAlign='right';ctx.fillText(Math.round(mx-(mx-mn)*i/4),p.l-6,yy+4);}
   if(data.length>1){
     ctx.strokeStyle=color;ctx.lineWidth=3;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();
     data.forEach(function(v,i){var x=p.l+cw*i/(data.length-1);var y=p.t+ch*(1-(v-mn)/(mx-mn));i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();
@@ -384,7 +384,7 @@ function drawLineChart(id,labels,data,color){
       ctx.fillStyle='#f0f2f5';ctx.font='bold 11px Barlow,sans-serif';ctx.textAlign='center';ctx.fillText(v,x,y-10);
     });
   }
-  labels.forEach(function(l,i){var x=p.l+(data.length>1?cw*i/(data.length-1):cw/2);ctx.fillStyle='#9ca3af';ctx.font='bold 12px Barlow,sans-serif';ctx.textAlign='center';ctx.fillText(l,x,H-6);});
+  labels.forEach(function(l,i){var x=p.l+(data.length>1?cw*i/(data.length-1):cw/2);ctx.fillStyle='#bac4d2';ctx.font='bold 12px Barlow,sans-serif';ctx.textAlign='center';ctx.fillText(l,x,H-6);});
 }
 
 function drawBarChart(id,labels,data,color){
@@ -402,9 +402,9 @@ function drawBarChart(id,labels,data,color){
     ctx.fillStyle=v===0?'#2a2f3a':color;
     ctx.beginPath();ctx.roundRect?ctx.roundRect(cx2-bw/2,y,bw,bh,3):ctx.fillRect(cx2-bw/2,y,bw,bh);ctx.fill();
     if(v>0){ctx.fillStyle='#f0f2f5';ctx.font='bold 12px Barlow,sans-serif';ctx.textAlign='center';ctx.fillText(v,cx2,y-5);}
-    ctx.fillStyle='#9ca3af';ctx.font='bold 12px Barlow,sans-serif';ctx.textAlign='center';ctx.fillText(labels[i],cx2,H-6);
+    ctx.fillStyle='#bac4d2';ctx.font='bold 12px Barlow,sans-serif';ctx.textAlign='center';ctx.fillText(labels[i],cx2,H-6);
   });
-  for(var i=0;i<3;i++){var yg=p.t+ch*(i/2);ctx.strokeStyle='rgba(42,47,58,0.7)';ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(p.l,yg);ctx.lineTo(p.l+cw,yg);ctx.stroke();ctx.fillStyle='#9ca3af';ctx.font='11px Barlow,sans-serif';ctx.textAlign='right';ctx.fillText(Math.round(mx*(1-i/2)),p.l-6,yg+4);}
+  for(var i=0;i<3;i++){var yg=p.t+ch*(i/2);ctx.strokeStyle='rgba(42,47,58,0.7)';ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(p.l,yg);ctx.lineTo(p.l+cw,yg);ctx.stroke();ctx.fillStyle='#bac4d2';ctx.font='11px Barlow,sans-serif';ctx.textAlign='right';ctx.fillText(Math.round(mx*(1-i/2)),p.l-6,yg+4);}
 }
 
 function analyzePatterns(hist){
@@ -435,13 +435,13 @@ function renderCompare(){
       var d=new Date(item.date);
       return '<div class="compare-slot filled">'
         +'<strong style="font-family:Barlow Condensed,sans-serif;font-size:18px;color:var(--text)">Sessão '+(i+1)+'</strong>'
-        +'<div style="font-size:13px;color:#9ca3af;margin-top:5px">'+d.toLocaleDateString('pt-BR')+(item.distance?' · '+item.distance:'')+' · <b style="color:var(--accent)">'+(item.totalHoles||0)+' tiros</b></div>'
+        +'<div style="font-size:13px;color:#cdd6e4;margin-top:5px">'+d.toLocaleDateString('pt-BR')+(item.distance?' · '+item.distance:'')+' · <b style="color:var(--accent)">'+(item.totalHoles||0)+' tiros</b></div>'
         +'<button onclick="compareSlots['+i+']=null;renderCompare()" style="margin-top:10px;background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:5px;cursor:pointer;font-size:13px;font-weight:600">Trocar</button>'
         +'</div>';
     }
     var options=hist.slice(0,20).map(function(h){var d2=new Date(h.date);return '<option value="'+h.id+'">'+d2.toLocaleDateString('pt-BR')+' — '+(h.totalHoles||0)+' tiros'+(h.distance?' — '+h.distance:'')+'</option>';}).join('');
     return '<div class="compare-slot">'
-      +'<div style="font-size:14px;color:#9ca3af;margin-bottom:10px">Selecione a sessão '+(i+1)+'</div>'
+      +'<div style="font-size:14px;color:#cdd6e4;margin-bottom:10px">Selecione a sessão '+(i+1)+'</div>'
       +'<select onchange="compareSlots['+i+']=+this.value;renderCompare()" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:6px;font-size:14px">'
       +'<option value="">-- escolher --</option>'+options+'</select>'
       +'</div>';
@@ -506,36 +506,81 @@ function generateUnifiedSVG(targets){
     var mc2=zones['M']||t.missCount||0;for(var m=0;m<mc2;m++){var a=(i*40+m*97+15)*Math.PI/180;var mr=(isRecurve?105:98)+(m%3)*5;allHoles+='<circle cx="'+Math.round(100+Math.cos(a)*mr)+'" cy="'+Math.round(100+Math.sin(a)*mr)+'" r="4" fill="#f87171" opacity=".95"/>';}
   });
   var rings=isRecurve?'<circle cx="100" cy="100" r="96" fill="#eee"/><circle cx="100" cy="100" r="88" fill="#ddd"/><circle cx="100" cy="100" r="80" fill="#333"/><circle cx="100" cy="100" r="70" fill="#444"/><circle cx="100" cy="100" r="60" fill="#4A90C4"/><circle cx="100" cy="100" r="52" fill="#3A80B4"/><circle cx="100" cy="100" r="44" fill="#C04040"/><circle cx="100" cy="100" r="34" fill="#AA3333"/><circle cx="100" cy="100" r="24" fill="#DDBB00"/><circle cx="100" cy="100" r="14" fill="#CCAA00"/><circle cx="100" cy="100" r="6" fill="#BBAA00"/>':'<circle cx="100" cy="100" r="96" fill="#4A90C4"/><circle cx="100" cy="100" r="72" fill="#C04040"/><circle cx="100" cy="100" r="52" fill="#AA3333"/><circle cx="100" cy="100" r="34" fill="#DDBB00"/><circle cx="100" cy="100" r="20" fill="#CCAA00"/><circle cx="100" cy="100" r="8" fill="#BBAA00"/>';
-  var legend=targets.map(function(t,i){return '<span style="font-size:10px;color:#6b7280;display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:'+colors[i]+';display:inline-block"></span>'+t.id+'</span>';}).join('');
-  return '<div style="display:flex;justify-content:center;margin:8px 0"><svg width="190" height="190" viewBox="-15 -15 230 230"><rect x="-15" y="-15" width="230" height="230" fill="#13161b" rx="8"/>'+rings+'<line x1="86" y1="100" x2="114" y2="100" stroke="#555" stroke-width=".8"/><line x1="100" y1="86" x2="100" y2="114" stroke="#555" stroke-width=".8"/>'+allHoles+'<ellipse cx="100" cy="100" rx="40" ry="32" fill="none" stroke="#111" stroke-width="2" stroke-dasharray="6,4" opacity=".5"/></svg></div><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:4px">'+legend+'<span style="font-size:10px;color:#6b7280;display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#f87171;display:inline-block"></span>M (miss)</span></div>';
+  var legend=targets.map(function(t,i){return '<span style="font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:'+colors[i]+';display:inline-block"></span>'+t.id+'</span>';}).join('');
+  return '<div style="display:flex;justify-content:center;margin:8px 0"><svg width="190" height="190" viewBox="-15 -15 230 230"><rect x="-15" y="-15" width="230" height="230" fill="#13161b" rx="8"/>'+rings+'<line x1="86" y1="100" x2="114" y2="100" stroke="#555" stroke-width=".8"/><line x1="100" y1="86" x2="100" y2="114" stroke="#555" stroke-width=".8"/>'+allHoles+'<ellipse cx="100" cy="100" rx="40" ry="32" fill="none" stroke="#111" stroke-width="2" stroke-dasharray="6,4" opacity=".5"/></svg></div><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:4px">'+legend+'<span style="font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#f87171;display:inline-block"></span>M (miss)</span></div>';
 }
 
 function renderResults(a){
   hide($('loadingWrap'));var html='';
-  var missStr=a.totalMiss>0?' · <span style="color:var(--red)">'+a.totalMiss+' M</span>':'';
-  html+='<div class="score-card fade-in"><div class="score-row"><span class="score-label">Tiros analisados</span><span class="score-val" style="font-size:36px">'+a.totalHoles+'<span style="font-size:16px;color:#9ca3af;font-weight:500"> tiros</span></span></div><div class="score-detail">'+((a.totalMiss||0)>0?a.totalMiss+' miss · ':'')+((a.distance)?a.distance+' · ':'')+( a.targetType?a.targetType.substring(0,35):'')+'</div></div>';
-  html+='<div class="section-card fade-in"><div class="section-label">'+(a.targetType||'Sessão')+'</div><div class="section-text">'+a.summary+'</div></div>';
+
+  // ── BARRA DE RESUMO ──────────────────────────────────────────────
+  var typeShort=(a.targetType||'').replace('Tipo A - Composto Indoor','Composto Indoor').replace('Tipo B - Recurvo/Barebow','Recurvo / Barebow');
+  var distLabel=a.distance?a.distance:'';
+  var missTotal=a.totalMiss||0;
+  html+='<div class="fade-in" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:14px">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
+    +'<span style="font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#cdd6e4">'+(typeShort||'Sessão')+(distLabel?' &nbsp;·&nbsp; '+distLabel:'')+'</span>'
+    +(missTotal>0?'<span style="font-size:13px;font-weight:700;color:#f87171">'+missTotal+' miss</span>':'')
+    +'</div>'
+    +'<div style="display:flex;gap:24px;align-items:flex-end">'
+    +'<div><span style="font-family:Barlow Condensed,sans-serif;font-size:52px;font-weight:900;color:var(--accent);line-height:1">'+a.totalHoles+'</span><span style="font-size:16px;color:#cdd6e4;margin-left:6px">tiros no alvo</span></div>'
+    +(a.targets&&a.targets.length>1?'<div style="font-size:13px;color:#cdd6e4;padding-bottom:6px">'+a.targets.length+' séries</div>':'')
+    +'</div>'
+    +(a.summary?'<div style="font-size:14px;color:#e4eaf3;line-height:1.6;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">'+a.summary+'</div>':'')
+    +'</div>';
+
+  // ── ALVOS: mapa unificado + por série ───────────────────────────
   if(a.targets&&a.targets.length>0){
-    var totalMiss2=a.totalMiss||a.targets.reduce(function(s,t){return s+(t.missCount||0);},0);
-    var grandTotal=(a.totalHoles||0)+totalMiss2;
-    var totalBlock='';
-    if(grandTotal>0){
-      var mBlock=totalMiss2>0?'<div style="text-align:center"><span style="font-family:Barlow Condensed,sans-serif;font-size:26px;font-weight:700;color:#f87171">'+totalMiss2+'</span><span style="font-size:10px;color:#f87171;display:block;letter-spacing:1px;text-transform:uppercase">M (miss)</span></div>':'';
-      totalBlock='<div style="margin-top:12px;padding-top:10px;border-top:0.5px solid #2a2f3a"><div style="text-align:center;margin-bottom:8px"><span style="font-family:Barlow Condensed,sans-serif;font-size:36px;font-weight:700;color:#E8B84B">'+grandTotal+'</span><span style="font-size:11px;color:#6b7280;display:block;letter-spacing:1px;text-transform:uppercase">tiros analisados</span></div><div style="display:flex;justify-content:center;gap:24px"><div style="text-align:center"><span style="font-family:Barlow Condensed,sans-serif;font-size:22px;font-weight:700;color:#E8B84B">'+a.totalHoles+'</span><span style="font-size:10px;color:#6b7280;display:block;letter-spacing:1px;text-transform:uppercase">no alvo</span></div>'+mBlock+'</div></div>';
+    // mapa de sobreposição (compacto)
+    if(a.targets.length>1){
+      html+='<div class="section-card fade-in">'
+        +'<div class="section-label">Agrupamento · sobreposição das séries</div>'
+        +generateUnifiedSVG(a.targets)
+        +'</div>';
     }
-    html+='<div class="section-card fade-in"><div class="section-label">Agrupamento geral · sobreposição das séries</div>'+generateUnifiedSVG(a.targets)+totalBlock+'</div>';
-    html+='<div class="targets-label">Dispersão por série</div>';
-    a.targets.forEach(function(t,i){
-      var hcParts=[];if(t.holeCount>0)hcParts.push(t.holeCount+' tiros');if(t.missCount>0)hcParts.push('<span style="color:#f87171">'+t.missCount+' M</span>');
-      var hcLabel=hcParts.length>0?' <span style="font-size:11px;color:#6b7280;font-weight:400">('+hcParts.join(' · ')+')</span>':'';
-      html+='<div class="target-card fade-in"><div class="target-card-header"><div class="target-card-name">'+t.label+' · '+t.id+hcLabel+'</div><div class="badge '+badgeClass(t.badgeLevel)+'">'+t.badge+'</div></div><div class="target-card-body">'+generateTargetSVG(t)+'<div class="target-card-info">'+(t.desvio?'<div class="desvio-tag">'+t.desvio+'</div>':'')+'<div class="target-card-text">'+t.analysis+'</div></div></div></div>';
+
+    // por série: SVG compacto + desvio + análise
+    html+='<div class="targets-label">Análise por série</div>';
+    a.targets.forEach(function(t){
+      var qual=t.badgeLevel||'medium';
+      html+='<div class="target-card fade-in">'
+        // cabeçalho: id + tiros + badge
+        +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
+        +'<div>'
+        +'<span style="font-family:Barlow Condensed,sans-serif;font-size:17px;font-weight:700;color:#fff">'+t.label+'</span>'
+        +'<span style="font-size:13px;color:#cdd6e4;margin-left:8px">'+(t.holeCount||0)+' tiros'+(t.missCount>0?' · <span style="color:#f87171">'+t.missCount+' M</span>':'')+'</span>'
+        +'</div>'
+        +'<div class="badge '+badgeClass(qual)+'">'+t.badge+'</div>'
+        +'</div>'
+        // SVG + análise lado a lado
+        +'<div style="display:flex;gap:12px;align-items:flex-start">'
+        +generateTargetSVG(t)
+        +'<div style="flex:1">'
+        +(t.desvio?'<div style="font-size:12px;color:var(--accent);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">'+t.desvio+'</div>':'')
+        +'<div style="font-size:13px;color:#e4eaf3;line-height:1.65">'+t.analysis+'</div>'
+        +'</div>'
+        +'</div>'
+        +'</div>';
     });
   }
-  if(a.generalPattern)html+='<div class="pattern-card fade-in"><div class="section-label">Padrão geral</div><div class="section-text">'+a.generalPattern+'</div></div>';
-  html+='<div class="coach-card fade-in"><div class="coach-title">Leve para o seu técnico</div><div class="coach-text">Esses dados e o alvo físico contam muito mais do que parece. Um técnico experiente consegue enxergar padrões que vão além da pontuação — postura, empunhadura, âncora — e vai te dar ajustes precisos que fazem diferença real no próximo treino.</div></div>';
-  html+='<div class="dev-card fade-in"><div style="font-size:11px;color:rgba(232,184,75,0.8);line-height:1.7"><strong style="color:rgba(232,184,75,1);display:block;margin-bottom:3px">⚠ Funcionalidade em desenvolvimento</strong>Esta análise é gerada por IA e pode conter imprecisões. Não substitui avaliação de um técnico.</div></div>';
-  html+='<div class="share-row fade-in"><button class="btn-share" onclick="shareAsImage()"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Salvar imagem</button><button class="btn-share" onclick="shareAsPDF()"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Exportar PDF</button></div>';
+
+  // ── PADRÃO GERAL ────────────────────────────────────────────────
+  if(a.generalPattern){
+    html+='<div class="pattern-card fade-in"><div class="section-label">Padrão geral</div>'
+      +'<div class="section-text">'+a.generalPattern+'</div></div>';
+  }
+
+  // ── AVISO IA + COMPARTILHAR ──────────────────────────────────────
+  html+='<div class="dev-card fade-in"><div style="font-size:12px;color:rgba(232,184,75,0.85);line-height:1.7">'
+    +'<strong style="color:rgba(232,184,75,1);display:block;margin-bottom:3px">⚠ Análise por IA</strong>'
+    +'Pode conter imprecisões. Leve o alvo físico para o seu técnico — ele enxerga muito mais do que qualquer imagem.'
+    +'</div></div>';
+  html+='<div class="share-row fade-in">'
+    +'<button class="btn-share" onclick="shareAsImage()">📷 Salvar imagem</button>'
+    +'<button class="btn-share" onclick="shareAsPDF()">📄 Exportar PDF</button>'
+    +'</div>';
   html+='<div class="fade-in" style="margin-top:12px"><button class="btn-new-bottom" onclick="reset()">+ Analisar novo alvo</button></div>';
+
   $('resultsContent').innerHTML=html;show($('resultsWrap'));
 }
 
